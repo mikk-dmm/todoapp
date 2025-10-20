@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title} ?: 'Todoアプリ'">Todoアプリ</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header>
+        <h1>Todoアプリ</h1>
+        <nav>
+        <a th:href="@{/todos}">Todo一覧</a> |
+        <a th:href="@{/categories}">カテゴリー一覧</a> |
+        <a th:href="@{/users}">ユーザー一覧</a>
+        </nav>
+    <hr>
+    </header>
+
+    <main th:fragment="layout(content)">
+    <div th:replace="${content}"></div>
+    </main>
+
+    <footer>
+    <hr>
+    <p>&copy; 2025 TodoApp</p>
+    </footer>
+</body>
+</html>

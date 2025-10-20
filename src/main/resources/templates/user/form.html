@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="layout :: layout(~{::content})">
+
+<div th:fragment="content">
+    <h2>ユーザー登録</h2>
+
+    <form th:action="@{/users}" method="post" th:object="${user}">
+    <div>
+        <label>ユーザー名：</label>
+        <input type="text" th:field="*{username}">
+    </div>
+    <div>
+        <label>パスワード：</label>
+        <input type="password" th:field="*{password}">
+    </div>
+    <div>
+        <button type="submit">登録</button>
+    </div>
+    </form>
+</div>
+</html>

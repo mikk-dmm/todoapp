@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="layout :: layout(~{::content})">
+
+<div th:fragment="content">
+    <h2>ユーザー一覧</h2>
+
+    <a th:href="@{/users/new}">新規ユーザー作成</a>
+
+    <table　border="1">
+    <tr>
+        <th>ID</th>
+        <th>名前</th>
+        <th>操作</th>
+    </tr>
+        <tr th:each="user : ${users}">
+    <td th:text="${user.id}"></td>
+    <td th:text="${user.username}"></td>
+    <td>
+        <a th:href="@{'/users/delete/' + ${user.id}}" onclick="return confirm('本当に削除しますか？');">削除</a>
+    </td>
+    </tr>
+    </table>
+</div>
+</html>

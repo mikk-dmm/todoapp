@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: layout(~{::content})">
+
+<div th:fragment="content">
+    <h2>新規ユーザー作成</h2>
+
+    <form th:action="@{/users}" th:object="${user}" method="post">
+        <div>
+            <label for="username">ユーザー名：</label>
+            <input type="text" id="username" th:field="*{username}" required>
+        </div>
+
+        <div>
+            <label for="password">パスワード：</label>
+            <input type="password" id="password" th:field="*{password}" required>
+        </div>
+
+        <div>
+            <button type="submit">登録</button>
+            <a th:href="@{/users}">戻る</a>
+        </div>
+    </form>
+</div>
+</html>
