@@ -2,6 +2,7 @@ package com.example.todoapp.service;
 
 import com.example.todoapp.entity.User;
 import com.example.todoapp.repository.UserRepository;
+import com.example.todoapp.security.CustomUserDetails;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // DBからユーザー取得
+        // DBからユーザーを取得
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("ユーザーが見つかりません: " + username));
 
-        // Spring Security 用の UserDetails オブジェクトを返す
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())
-                .roles(user.getRole())  // 例: "USER" や "ADMIN"
-                .build();
+        // 独自のUserDetailsを返却（エンティティへのアクセスが可能）
+        return new CustomUserDetails(user);
     }
 }

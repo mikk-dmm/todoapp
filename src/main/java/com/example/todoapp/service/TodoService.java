@@ -2,7 +2,11 @@ package com.example.todoapp.service;
 
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.repository.TodoRepository;
+import com.example.todoapp.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import com.example.todoapp.entity.User;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,8 +14,10 @@ import java.util.Optional;
 @Service
 public class TodoService {
     private final TodoRepository todoRepository;
+    private final UserRepository userRepository;
 
-    public TodoService(TodoRepository todoRepository) {
+    public TodoService(TodoRepository todoRepository, UserRepository userRepository) {
+        this.userRepository = userRepository;
         this.todoRepository = todoRepository;
     }
 
@@ -38,5 +44,22 @@ public class TodoService {
     // Todo削除
     public void deleteById(Long id) {
         todoRepository.deleteById(id);
+    }
+
+    public List<Todo> findAllByCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        return todoRepository.findByUser(user);
+    }
+
+    public Todo saveForCurrentUser(Todo todo) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        todo.setUser(user);
+        return todoRepository.save(todo);
     }
 }

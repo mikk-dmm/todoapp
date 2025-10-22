@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Todo詳細</title>
+</head>
+<body>
+<h1 th:text="${title}"></h1>
+
+<div>
+    <p><strong>ID:</strong> <span th:text="${todo.id}"></span></p>
+    <p><strong>タイトル:</strong> <span th:text="${todo.title}"></span></p>
+    <p><strong>詳細:</strong> <span th:text="${todo.description}"></span></p>
+    <p><strong>カテゴリ:</strong> <span th:text="${todo.category != null ? todo.category.name : 'なし'}"></span></p>
+    <p><strong>作成日:</strong> <span th:text="${todo.createdAt}"></span></p>
+</div>
+
+<a th:href="@{/todos}">一覧に戻る</a>
+<a th:href="@{'/todos/edit/' + ${todo.id}}">編集</a>
+<a th:href="@{'/todos/delete/' + ${todo.id}}">削除</a>
+
+</body>
+</html>

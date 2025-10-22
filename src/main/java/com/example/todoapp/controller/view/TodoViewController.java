@@ -7,6 +7,8 @@ import com.example.todoapp.service.CategoryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.example.todoapp.security.CustomUserDetails;
 
 @Controller
 @RequestMapping("/todos")
@@ -22,13 +24,14 @@ public class TodoViewController {
 
     //一覧表示
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("todos", todoService.findAll());
+    public String list(Model model,
+                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        model.addAttribute("todos", todoService.findAllByCurrentUser());
         model.addAttribute("title", "Todo一覧");
         return "todo/list";
     }
 
-    //新規作成フォーム
+    //新規作成
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("todoForm", new TodoForm());
@@ -40,27 +43,51 @@ public class TodoViewController {
 
     //登録
     @PostMapping
-    public String createTodo(@ModelAttribute Todo todo) {
-        todoService.save(todo);
+    public String createTodo(@ModelAttribute Todo todo,
+                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        todo.setUser(userDetails.getUser());
+        todoService.saveForCurrentUser(todo);
         return "redirect:/todos";
     }
 
-    //編集フォーム
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
+    //詳細
+    @GetMapping("/{id}")
+    public String showDetail(@PathVariable Long id, Model model) {
         Todo todo = todoService.findById(id).orElseThrow(() -> new IllegalArgumentException("指定されたIDのTodoが存在しません: " + id));
         model.addAttribute("todo", todo);
+        model.addAttribute("title", "Todo詳細");
+        return "todo/detail";
+    }
+
+    //編集
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        Todo todo = todoService.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("指定されたIDのTodoが存在しません: " + id));
+
+    // Todo → TodoForm に詰め替え
+        TodoForm todoForm = new TodoForm();
+        todoForm.setId(todo.getId());
+        todoForm.setTitle(todo.getTitle());
+        todoForm.setDescription(todo.getDescription());
+        if (todo.getCategory() != null) {
+            todoForm.setCategoryId(todo.getCategory().getId());
+        }
+        todoForm.setDueDate(todo.getDueDate());
+
+        model.addAttribute("todoForm", todoForm);
         model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("title", "Todo編集");
         model.addAttribute("mode", "edit");
         return "todo/form";
     }
 
-    //更新処理
+
+    //更新
     @PostMapping("/update/{id}")
     public String updateTodo(@PathVariable Long id, @ModelAttribute Todo todo) {
         todo.setId(id);
-        todoService.save(todo);
+        todoService.saveForCurrentUser(todo);
         return "redirect:/todos";
     }
 

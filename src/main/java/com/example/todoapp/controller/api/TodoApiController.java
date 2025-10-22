@@ -16,10 +16,10 @@ public class TodoApiController {
         this.todoService = todoService;
     }
 
-    //一覧取得
+    //一覧取得（ログインユーザーのみ）
     @GetMapping
-    public List<Todo> findAll() {
-        return todoService.findAll();
+    public List<Todo> getTodos() {
+        return todoService.findAllByCurrentUser();
     }
 
     //ユーザー取得
@@ -32,8 +32,8 @@ public class TodoApiController {
 
     //新規登録
     @PostMapping
-    public Todo create(@RequestBody Todo todo) {
-        return todoService.save(todo);
+    public Todo createTodo(@RequestBody Todo todo) {
+        return todoService.saveForCurrentUser(todo);
     }
 
     //更新
