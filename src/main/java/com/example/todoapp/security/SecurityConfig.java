@@ -13,6 +13,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
             .csrf(csrf -> csrf.disable()) // API用途などで不要なため無効化（後で必要に応じて有効化）
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(

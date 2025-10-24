@@ -15,7 +15,7 @@
         <tr th:each="todo : ${todos}">
             <td th:text="${todo.id}"></td>
             <td th:text="${todo.title}"></td>
-            <td th:text="${todo.category != null ? todo.category.name : '-'}"></td>
+            <td th:text="${todo.category != null ? todo.category.name : '未分類'}"></td>
             <td>
                 <a th:href="@{'/todos/' + ${todo.id}}">詳細</a> |
                 <a th:href="@{'/todos/edit/' + ${todo.id}}">編集</a> |
@@ -25,3 +25,4 @@
     </table>
 </div>
 </html>
+

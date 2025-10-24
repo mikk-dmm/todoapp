@@ -5,6 +5,7 @@ import com.example.todoapp.service.TodoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/todos")
@@ -16,13 +17,13 @@ public class TodoApiController {
         this.todoService = todoService;
     }
 
-    //一覧取得（ログインユーザーのみ）
+    // 一覧取得（ログインユーザーのみ）
     @GetMapping
     public List<Todo> getTodos() {
         return todoService.findAllByCurrentUser();
     }
 
-    //ユーザー取得
+    // ID指定で取得
     @GetMapping("/{id}")
     public ResponseEntity<Todo> findById(@PathVariable Long id) {
         return todoService.findById(id)
@@ -30,23 +31,43 @@ public class TodoApiController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    //新規登録
+    /* 新規登録 */
     @PostMapping
-    public Todo createTodo(@RequestBody Todo todo) {
-        return todoService.saveForCurrentUser(todo);
+    public Todo createTodo(@RequestBody Map<String, Object> payload) {
+        // JSONからTodo本体を作成
+        Todo todo = new Todo();
+        todo.setTitle((String) payload.get("title"));
+        todo.setDescription((String) payload.get("description"));
+
+        // categoryIdを取得（存在しない場合はnull）
+        Long categoryId = payload.get("categoryId") != null
+                ? ((Number) payload.get("categoryId")).longValue()
+                : null;
+
+        return todoService.createTodo(todo, categoryId);
     }
 
-    //更新
+    /*更新*/
     @PutMapping("/{id}")
-    public ResponseEntity<Todo> update(@PathVariable Long id, @RequestBody Todo todo) {
+    public ResponseEntity<Todo> update(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
         if (todoService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
+        Todo todo = new Todo();
         todo.setId(id);
-        return ResponseEntity.ok(todoService.save(todo));
+        todo.setTitle((String) payload.get("title"));
+        todo.setDescription((String) payload.get("description"));
+
+        Long categoryId = payload.get("categoryId") != null
+                ? ((Number) payload.get("categoryId")).longValue()
+                : null;
+
+        Todo updated = todoService.updateTodo(todo, categoryId);
+        return ResponseEntity.ok(updated);
     }
 
-    //削除
+    // 削除
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         todoService.deleteById(id);

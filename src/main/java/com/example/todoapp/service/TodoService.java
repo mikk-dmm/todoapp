@@ -1,34 +1,57 @@
 package com.example.todoapp.service;
 
+import com.example.todoapp.entity.Category;
 import com.example.todoapp.entity.Todo;
-import com.example.todoapp.repository.TodoRepository;
-import com.example.todoapp.repository.UserRepository;
-import org.springframework.stereotype.Service;
 import com.example.todoapp.entity.User;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
+import com.example.todoapp.repository.CategoryRepository;
+import com.example.todoapp.repository.TodoRepository;
+import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class TodoService {
-    private final TodoRepository todoRepository;
-    private final UserRepository userRepository;
 
-    public TodoService(TodoRepository todoRepository, UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private final TodoRepository todoRepository;
+    private final UserService userService;
+    private final CategoryRepository categoryRepository;
+
+    public TodoService(TodoRepository todoRepository, UserService userService, CategoryRepository categoryRepository) {
         this.todoRepository = todoRepository;
+        this.userService = userService;
+        this.categoryRepository = categoryRepository;
     }
 
-    // Todo作成
-    public Todo createTodo(Todo todo) {
+    // Todo作成（ログイン中ユーザー カテゴリを紐づけ）
+    public Todo createTodo(Todo todo, Long categoryId) {
+        User currentUser = userService.getCurrentUser();
+        todo.setUser(currentUser);
+
+        if (categoryId != null) {
+            categoryRepository.findById(categoryId).ifPresent(todo::setCategory);
+        }
+
         return todoRepository.save(todo);
     }
 
-    // Todo一覧取得
-    public List<Todo> findAll() {
-        return todoRepository.findAll();
+    // Todo更新（ログイン中ユーザー カテゴリを再紐づけ）
+    public Todo updateTodo(Todo todo, Long categoryId) {
+        User currentUser = userService.getCurrentUser();
+        todo.setUser(currentUser);
+
+        if (categoryId != null) {
+            categoryRepository.findById(categoryId).ifPresent(todo::setCategory);
+        } else {
+            todo.setCategory(null);
+        }
+
+        return todoRepository.save(todo);
+    }
+
+    // Todo一覧（ログイン中ユーザーのみ）
+    public List<Todo> findAllByCurrentUser() {
+        User currentUser = userService.getCurrentUser();
+        return todoRepository.findByUser(currentUser);
     }
 
     // Todo取得（ID指定）
@@ -36,30 +59,8 @@ public class TodoService {
         return todoRepository.findById(id);
     }
 
-    // Todo保存
-    public Todo save(Todo todo) {
-        return todoRepository.save(todo);
-    }
-
     // Todo削除
     public void deleteById(Long id) {
         todoRepository.deleteById(id);
-    }
-
-    public List<Todo> findAllByCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        return todoRepository.findByUser(user);
-    }
-
-    public Todo saveForCurrentUser(Todo todo) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        todo.setUser(user);
-        return todoRepository.save(todo);
     }
 }

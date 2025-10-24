@@ -16,14 +16,13 @@ public class CategoryApiController {
         this.categoryService = categoryService;
     }
 
-    //一覧取得
+    // 一覧取得
     @GetMapping
     public List<Category> findAll() {
         return categoryService.findAll();
     }
 
-
-    //カテゴリ取得
+    // ID指定取得
     @GetMapping("/{id}")
     public ResponseEntity<Category> findById(@PathVariable Long id) {
         return categoryService.findById(id)
@@ -31,15 +30,24 @@ public class CategoryApiController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
-    //登録
+    // 登録
     @PostMapping
     public Category create(@RequestBody Category category) {
         return categoryService.save(category);
     }
 
+    // 更新
+    @PutMapping("/{id}")
+    public ResponseEntity<Category> update(@PathVariable Long id, @RequestBody Category category) {
+        try {
+            Category updated = categoryService.update(id, category);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
-    //削除
+    // 削除
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         categoryService.delete(id);
