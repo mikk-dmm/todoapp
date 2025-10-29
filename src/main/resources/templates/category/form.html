@@ -8,12 +8,14 @@
 
         <div>
             <label for="name">カテゴリ名：</label>
-            <input type="text" id="name" th:field="*{name}" required />
+            <input type="text" id="name" th:field="*{name}" placeholder="例）仕事、プライベート" required />
         </div>
 
-        <div>
+        <input type="hidden" th:field="*{user.id}" />
+
+        <div style="margin-top: 10px;">
             <button type="submit">保存</button>
-            <a th:href="@{/categories}">戻る</a>
+            <a th:href="@{/categories}" style="margin-left: 10px;">戻る</a>
         </div>
     </form>
 </div>

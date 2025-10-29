@@ -2,6 +2,8 @@ package com.example.todoapp.controller.view;
 
 import com.example.todoapp.entity.Category;
 import com.example.todoapp.service.CategoryService;
+import com.example.todoapp.service.UserService;
+import com.example.todoapp.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,15 +14,18 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryViewController {
 
     private final CategoryService categoryService;
+    private final UserService userService;
 
-    public CategoryViewController(CategoryService categoryService) {
+    public CategoryViewController(CategoryService categoryService, UserService userService) {
         this.categoryService = categoryService;
+        this.userService = userService;
     }
 
     // 一覧表示
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("categories", categoryService.findAll());
+        User currentUser = userService.getCurrentUser();
+        model.addAttribute("categories", categoryService.findByUserId(currentUser.getId()));
         model.addAttribute("title", "カテゴリ一覧");
         return "category/list";
     }
@@ -46,6 +51,8 @@ public class CategoryViewController {
     // 登録処理（新規作成）
     @PostMapping
     public String createCategory(@ModelAttribute Category category) {
+        User currentUser = userService.getCurrentUser();
+        category.setUser(currentUser);
         categoryService.save(category);
         return "redirect:/categories";
     }
@@ -53,6 +60,7 @@ public class CategoryViewController {
     // 更新処理
     @PostMapping("/update/{id}")
     public String updateCategory(@PathVariable Long id, @ModelAttribute Category category) {
+        User currentUser = userService.getCurrentUser();
         categoryService.update(id, category);
         return "redirect:/categories";
     }
