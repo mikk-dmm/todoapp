@@ -1,10 +1,12 @@
 package com.example.todoapp.service;
 
-import com.example.todoapp.entity.Category;
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.entity.User;
 import com.example.todoapp.repository.CategoryRepository;
 import com.example.todoapp.repository.TodoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,28 +47,28 @@ public class TodoService {
         return todoRepository.save(todo);
     }
 
-    // 一覧（ログインユーザー限定）
-    public List<Todo> findAllByCurrentUser() {
+    //ページネーション対応一覧
+    public Page<Todo> findAllByCurrentUser(int page, int size) {
         User currentUser = userService.getCurrentUser();
-        return todoRepository.findByUser(currentUser);
+        Pageable pageable = PageRequest.of(page, size);
+        return todoRepository.findByUser(currentUser, pageable);
     }
 
-    // 検索（ログインユーザー限定）
-    public List<Todo> searchTodos(String keyword) {
+    //ページネーション対応検索
+    public Page<Todo> searchTodos(String keyword, int page, int size) {
         User currentUser = userService.getCurrentUser();
+        Pageable pageable = PageRequest.of(page, size);
         if (keyword == null || keyword.isEmpty()) {
-            return todoRepository.findByUser(currentUser);
+            return todoRepository.findByUser(currentUser, pageable);
         } else {
-            return todoRepository.findByUserAndTitleContainingIgnoreCase(currentUser, keyword);
+            return todoRepository.findByUserAndTitleContainingIgnoreCase(currentUser, keyword, pageable);
         }
     }
 
-    // 単体取得
     public Optional<Todo> findById(Long id) {
         return todoRepository.findById(id);
     }
 
-    // 削除
     public void deleteById(Long id) {
         todoRepository.deleteById(id);
     }

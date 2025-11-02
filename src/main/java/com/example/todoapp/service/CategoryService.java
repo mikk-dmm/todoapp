@@ -1,6 +1,8 @@
 package com.example.todoapp.service;
 
 import com.example.todoapp.entity.Category;
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,5 +13,5 @@ public interface CategoryService {
     void delete(Long id);
     List<Category> findByUserId(Long userId);
     Category update(Long id, Category category);
-    List<Category> searchCategories(String keyword);
+    Page<Category> searchCategories(String keyword, int page, int size);
 }

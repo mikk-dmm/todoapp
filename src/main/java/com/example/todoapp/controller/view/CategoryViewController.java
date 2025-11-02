@@ -23,7 +23,7 @@ public class CategoryViewController {
         this.userService = userService;
     }
 
-    // ✅ 検索＋一覧表示を統一
+    //検索・一覧
     @GetMapping
     public String listCategories(
             @RequestParam(name = "keyword", required = false) String keyword,

@@ -8,6 +8,9 @@ import com.example.todoapp.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +66,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         existing.setName(category.getName());
-
         if (existing.getUser() == null) {
             existing.setUser(userService.getCurrentUser());
         }
@@ -71,14 +73,16 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.save(existing);
     }
 
-    //検索処理
+    //ページネーション付き検索
     @Override
     @Transactional(readOnly = true)
-    public List<Category> searchCategories(String keyword) {
+    public Page<Category> searchCategories(String keyword, int page, int size) {
+        User currentUser = userService.getCurrentUser();
+        Pageable pageable = PageRequest.of(page, size);
         if (keyword == null || keyword.isEmpty()) {
-            return categoryRepository.findAll();
+            return categoryRepository.findByUserId(currentUser.getId(), pageable);
         } else {
-            return categoryRepository.findByNameContainingIgnoreCase(keyword);
+            return categoryRepository.findByUserIdAndNameContainingIgnoreCase(currentUser.getId(), keyword, pageable);
         }
     }
 }
