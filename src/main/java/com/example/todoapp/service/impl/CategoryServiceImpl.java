@@ -38,7 +38,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category save(Category category) {
-        //現在のログインユーザー
         User currentUser = userService.getCurrentUser();
         category.setUser(currentUser);
         return categoryRepository.save(category);
@@ -61,14 +60,25 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category update(Long id, Category category) {
         Category existing = categoryRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new RuntimeException("Category not found"));
 
         existing.setName(category.getName());
-        //Userの更新は行わないが、nullの場合は現在のユーザーをセットまたが更新
+
         if (existing.getUser() == null) {
             existing.setUser(userService.getCurrentUser());
         }
 
         return categoryRepository.save(existing);
+    }
+
+    //検索処理
+    @Override
+    @Transactional(readOnly = true)
+    public List<Category> searchCategories(String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            return categoryRepository.findAll();
+        } else {
+            return categoryRepository.findByNameContainingIgnoreCase(keyword);
+        }
     }
 }

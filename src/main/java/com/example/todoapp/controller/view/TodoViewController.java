@@ -4,12 +4,10 @@ import com.example.todoapp.entity.Todo;
 import com.example.todoapp.entity.Category;
 import com.example.todoapp.entity.User;
 import com.example.todoapp.form.TodoForm;
-
 import com.example.todoapp.service.TodoService;
 import com.example.todoapp.service.CategoryService;
 import com.example.todoapp.service.UserService;
 import org.springframework.stereotype.Controller;
-
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,25 +27,27 @@ public class TodoViewController {
         this.userService = userService;
     }
 
-    // 共通：現在ログイン中ユーザーのカテゴリを取得
+    // 共通：ログイン中ユーザーのカテゴリ取得
     private List<Category> getUserCategories() {
         User currentUser = userService.getCurrentUser();
         return categoryService.findByUserId(currentUser.getId());
     }
 
-    // 一覧表示
+    // 一覧 + 検索
     @GetMapping
-    public String listTodos(Model model) {
-        List<Todo> todos = todoService.findAllByCurrentUser();
+    public String listTodos(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
+        List<Todo> todos = todoService.searchTodos(keyword);
         model.addAttribute("todos", todos);
+        model.addAttribute("keyword", keyword);
         model.addAttribute("categories", getUserCategories());
+        model.addAttribute("title", "Todo一覧");
         return "todo/list";
     }
 
-    // 新規作成フォーム表示
+    // 新規作成フォーム
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        TodoForm form = new TodoForm(); // フォーム専用クラス
+        TodoForm form = new TodoForm();
         model.addAttribute("todoForm", form);
         model.addAttribute("categories", getUserCategories());
         model.addAttribute("mode", "create");
@@ -56,32 +56,29 @@ public class TodoViewController {
 
     // 新規作成処理
     @PostMapping
-    public String createTodo(@ModelAttribute Todo todo,
-                                @RequestParam(required = false) Long categoryId) {
+    public String createTodo(@ModelAttribute Todo todo, @RequestParam(required = false) Long categoryId) {
         todoService.createTodo(todo, categoryId);
         return "redirect:/todos";
     }
 
-    // 編集フォーム表示
+    // 編集フォーム
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         Todo todo = todoService.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("指定されたIDのTodoが存在しません:" + id));
+                .orElseThrow(() -> new IllegalArgumentException("指定されたIDのTodoが存在しません: " + id));
         TodoForm todoForm = new TodoForm();
         todoForm.setId(todo.getId());
         todoForm.setTitle(todo.getTitle());
         todoForm.setDescription(todo.getDescription());
         todoForm.setDueDate(todo.getDueDate());
-        todoForm.setCategoryId(
-            todo.getCategory() != null ? todo.getCategory().getId() : null
-        );
+        todoForm.setCategoryId(todo.getCategory() != null ? todo.getCategory().getId() : null);
         model.addAttribute("todoForm", todoForm);
         model.addAttribute("categories", getUserCategories());
-        model.addAttribute("mode", "edit"); // ★フォーム判定用
+        model.addAttribute("mode", "edit");
         return "todo/form";
     }
 
-    //詳細フォーム
+    // 詳細表示
     @GetMapping("/{id}")
     public String showDetail(@PathVariable Long id, Model model) {
         Todo todo = todoService.findById(id)
@@ -93,15 +90,14 @@ public class TodoViewController {
 
     // 更新処理
     @PostMapping("/update/{id}")
-    public String updateTodo(@PathVariable Long id,
-                                @ModelAttribute Todo todo,
-                                @RequestParam(required = false) Long categoryId) {
+    public String updateTodo(@PathVariable Long id, @ModelAttribute Todo todo,
+                            @RequestParam(required = false) Long categoryId) {
         todo.setId(id);
         todoService.updateTodo(todo, categoryId);
         return "redirect:/todos";
     }
 
-    // 削除処理
+    // 削除
     @GetMapping("/delete/{id}")
     public String deleteTodo(@PathVariable Long id) {
         todoService.deleteById(id);

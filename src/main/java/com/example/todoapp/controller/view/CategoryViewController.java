@@ -1,13 +1,15 @@
 package com.example.todoapp.controller.view;
 
 import com.example.todoapp.entity.Category;
+import com.example.todoapp.entity.User;
 import com.example.todoapp.service.CategoryService;
 import com.example.todoapp.service.UserService;
-import com.example.todoapp.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/categories")
@@ -21,16 +23,28 @@ public class CategoryViewController {
         this.userService = userService;
     }
 
-    // 一覧表示
+    // ✅ 検索＋一覧表示を統一
     @GetMapping
-    public String list(Model model) {
+    public String listCategories(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            Model model) {
+
         User currentUser = userService.getCurrentUser();
-        model.addAttribute("categories", categoryService.findByUserId(currentUser.getId()));
+        List<Category> categories;
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            categories = categoryService.findByUserId(currentUser.getId());
+        } else {
+            categories = categoryService.searchCategories(keyword);
+        }
+
+        model.addAttribute("categories", categories);
+        model.addAttribute("keyword", keyword);
         model.addAttribute("title", "カテゴリ一覧");
+
         return "category/list";
     }
 
-    // 新規作成フォーム
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("category", new Category());
@@ -38,7 +52,6 @@ public class CategoryViewController {
         return "category/form";
     }
 
-    // 編集フォーム
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         Category category = categoryService.findById(id)
@@ -48,24 +61,18 @@ public class CategoryViewController {
         return "category/form";
     }
 
-    // 登録処理（新規作成）
     @PostMapping
     public String createCategory(@ModelAttribute Category category) {
-        User currentUser = userService.getCurrentUser();
-        category.setUser(currentUser);
         categoryService.save(category);
         return "redirect:/categories";
     }
 
-    // 更新処理
     @PostMapping("/update/{id}")
     public String updateCategory(@PathVariable Long id, @ModelAttribute Category category) {
-        User currentUser = userService.getCurrentUser();
         categoryService.update(id, category);
         return "redirect:/categories";
     }
 
-    // 削除処理
     @GetMapping("/delete/{id}")
     public String deleteCategory(@PathVariable Long id) {
         categoryService.delete(id);

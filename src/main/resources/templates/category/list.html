@@ -1,24 +1,46 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: layout(~{::content})">
-<div th:fragment="content">
-    <h2 th:text="${title}">カテゴリ一覧</h2>
+<div th:fragment="content" class="p-6">
+    <h2 class="text-2xl font-bold mb-4" th:text="${title}">カテゴリ一覧</h2>
 
-    <a th:href="@{/categories/new}">新規カテゴリ作成</a>
+    <form th:action="@{/categories}" method="get" class="flex items-center mb-4">
+        <input type="text" name="keyword" placeholder="カテゴリ名で検索"
+                th:value="${keyword}"
+                class="border border-gray-300 rounded-lg px-3 py-2 w-64 mr-2 focus:ring focus:ring-blue-200" />
+        <button type="submit"
+                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+            検索
+        </button>
+        <a th:href="@{/categories}" class="ml-3 text-gray-600 hover:underline">リセット</a>
+    </form>
 
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>カテゴリ名</th>
-            <th>操作</th>
-        </tr>
-        <tr th:each="c : ${categories}">
-            <td th:text="${c.id}"></td>
-            <td th:text="${c.name}"></td>
-            <td>
-                <a th:href="@{'/categories/edit/' + ${c.id}}">編集</a> |
-                <a th:href="@{'/categories/delete/' + ${c.id}}" onclick="return confirm('削除してもよろしいですか？');">削除</a>
-            </td>
-        </tr>
+    <a th:href="@{/categories/new}"
+        class="inline-block mb-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+        新規カテゴリ作成
+    </a>
+
+    <table class="w-full border border-gray-300 text-left">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="px-3 py-2 border">ID</th>
+                <th class="px-3 py-2 border">カテゴリ名</th>
+                <th class="px-3 py-2 border">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="c : ${categories}" class="hover:bg-gray-50">
+                <td th:text="${c.id}" class="px-3 py-2 border"></td>
+                <td th:text="${c.name}" class="px-3 py-2 border"></td>
+                <td class="px-3 py-2 border">
+                    <a th:href="@{'/categories/edit/' + ${c.id}}"
+                        class="text-blue-500 hover:underline">編集</a>
+                    |
+                    <a th:href="@{'/categories/delete/' + ${c.id}}"
+                        onclick="return confirm('削除してもよろしいですか？');"
+                        class="text-red-500 hover:underline">削除</a>
+                </td>
+            </tr>
+        </tbody>
     </table>
 </div>
 </html>
