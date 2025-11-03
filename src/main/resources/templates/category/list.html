@@ -3,6 +3,7 @@
 <div th:fragment="content" class="p-6">
     <h2 class="text-2xl font-bold mb-4" th:text="${title}">カテゴリ一覧</h2>
 
+    <!-- 検索フォーム -->
     <form th:action="@{/categories}" method="get" class="flex items-center mb-4">
         <input type="text" name="keyword" placeholder="カテゴリ名で検索"
                 th:value="${keyword}"
@@ -19,28 +20,42 @@
         新規カテゴリ作成
     </a>
 
+    <!-- 一覧テーブル -->
     <table class="w-full border border-gray-300 text-left">
         <thead class="bg-gray-100">
-            <tr>
-                <th class="px-3 py-2 border">ID</th>
-                <th class="px-3 py-2 border">カテゴリ名</th>
-                <th class="px-3 py-2 border">操作</th>
-            </tr>
+        <tr>
+            <th class="px-3 py-2 border">ID</th>
+            <th class="px-3 py-2 border">カテゴリ名</th>
+            <th class="px-3 py-2 border">操作</th>
+        </tr>
         </thead>
         <tbody>
-            <tr th:each="c : ${categories}" class="hover:bg-gray-50">
-                <td th:text="${c.id}" class="px-3 py-2 border"></td>
-                <td th:text="${c.name}" class="px-3 py-2 border"></td>
-                <td class="px-3 py-2 border">
-                    <a th:href="@{'/categories/edit/' + ${c.id}}"
-                        class="text-blue-500 hover:underline">編集</a>
-                    |
-                    <a th:href="@{'/categories/delete/' + ${c.id}}"
-                        onclick="return confirm('削除してもよろしいですか？');"
-                        class="text-red-500 hover:underline">削除</a>
-                </td>
-            </tr>
+        <tr th:each="c : ${categoryPage.content}" class="hover:bg-gray-50">
+            <td th:text="${c.id}" class="px-3 py-2 border"></td>
+            <td th:text="${c.name}" class="px-3 py-2 border"></td>
+            <td class="px-3 py-2 border">
+                <a th:href="@{'/categories/edit/' + ${c.id}}"
+                    class="text-blue-500 hover:underline">編集</a>
+                |
+                <a th:href="@{'/categories/delete/' + ${c.id}}"
+                    onclick="return confirm('削除してもよろしいですか？');"
+                    class="text-red-500 hover:underline">削除</a>
+            </td>
+        </tr>
         </tbody>
     </table>
+
+    <!-- ページネーション -->
+    <div class="flex justify-center mt-4 gap-2">
+        <a th:if="${!categoryPage.first}"
+            th:href="@{|/categories?page=${categoryPage.number - 1}&keyword=${keyword}|}"
+            class="px-3 py-1 border rounded hover:bg-gray-100">前へ</a>
+
+        <span th:text="${categoryPage.number + 1} + ' / ' + ${categoryPage.totalPages}"></span>
+
+        <a th:if="${!categoryPage.last}"
+            th:href="@{|/categories?page=${categoryPage.number + 1}&keyword=${keyword}|}"
+            class="px-3 py-1 border rounded hover:bg-gray-100">次へ</a>
+    </div>
 </div>
 </html>

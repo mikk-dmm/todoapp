@@ -7,6 +7,9 @@ import com.example.todoapp.form.TodoForm;
 import com.example.todoapp.service.TodoService;
 import com.example.todoapp.service.CategoryService;
 import com.example.todoapp.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,14 +36,25 @@ public class TodoViewController {
         return categoryService.findByUserId(currentUser.getId());
     }
 
-    // 一覧 + 検索
+    // 一覧 + 検索 + ページネーション
     @GetMapping
-    public String listTodos(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
-        List<Todo> todos = todoService.searchTodos(keyword);
-        model.addAttribute("todos", todos);
+    public String listTodos(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Todo> todoPage = todoService.searchTodosWithPagination(keyword, pageable);
+
+        model.addAttribute("todoPage", todoPage);
+        model.addAttribute("todos", todoPage.getContent());
         model.addAttribute("keyword", keyword);
         model.addAttribute("categories", getUserCategories());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", todoPage.getTotalPages());
         model.addAttribute("title", "Todo一覧");
+
         return "todo/list";
     }
 

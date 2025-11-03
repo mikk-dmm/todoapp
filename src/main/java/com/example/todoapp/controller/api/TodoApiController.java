@@ -3,6 +3,8 @@ package com.example.todoapp.controller.api;
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.service.TodoService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +19,15 @@ public class TodoApiController {
         this.todoService = todoService;
     }
 
-    // 一覧取得（ログインユーザーのみ）
     @GetMapping
-    public List<Todo> getTodos() {
-        return todoService.findAllByCurrentUser();
+    public ResponseEntity<Page<Todo>> getTodos(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+
+        Page<Todo> todos = todoService.findAllByCurrentUser(page, size);
+        return ResponseEntity.ok(todos);
     }
+
 
     // ID指定で取得
     @GetMapping("/{id}")
@@ -31,7 +37,7 @@ public class TodoApiController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /* 新規登録 */
+    // 新規登録
     @PostMapping
     public Todo createTodo(@RequestBody Map<String, Object> payload) {
         // JSONからTodo本体を作成

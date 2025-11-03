@@ -72,4 +72,13 @@ public class TodoService {
     public void deleteById(Long id) {
         todoRepository.deleteById(id);
     }
+
+    public Page<Todo> searchTodosWithPagination(String keyword, Pageable pageable) {
+        User currentUser = userService.getCurrentUser();
+        if (keyword == null || keyword.isEmpty()) {
+            return todoRepository.findByUser(currentUser, pageable);
+        } else {
+            return todoRepository.findByUserAndTitleContainingIgnoreCase(currentUser, keyword, pageable);
+        }
+    }
 }

@@ -85,4 +85,15 @@ public class CategoryServiceImpl implements CategoryService {
             return categoryRepository.findByUserIdAndNameContainingIgnoreCase(currentUser.getId(), keyword, pageable);
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Category> searchCategoriesWithPagination(Long userId, String keyword, Pageable pageable) {
+        if (keyword == null || keyword.isEmpty()) {
+            return categoryRepository.findByUserId(userId, pageable);
+        } else {
+            return categoryRepository.findByUserIdAndNameContainingIgnoreCase(userId, keyword, pageable);
+        }
+    }
+
 }

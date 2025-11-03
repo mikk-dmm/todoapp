@@ -5,11 +5,12 @@ import com.example.todoapp.entity.User;
 import com.example.todoapp.service.CategoryService;
 import com.example.todoapp.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/categories")
@@ -23,23 +24,23 @@ public class CategoryViewController {
         this.userService = userService;
     }
 
-    //検索・一覧
+    // 検索・一覧 + ページネーション
     @GetMapping
     public String listCategories(
             @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
             Model model) {
 
         User currentUser = userService.getCurrentUser();
-        List<Category> categories;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Category> categoryPage = categoryService.searchCategoriesWithPagination(currentUser.getId(), keyword, pageable);
 
-        if (keyword == null || keyword.trim().isEmpty()) {
-            categories = categoryService.findByUserId(currentUser.getId());
-        } else {
-            categories = categoryService.searchCategories(keyword);
-        }
-
-        model.addAttribute("categories", categories);
+        model.addAttribute("categoryPage", categoryPage);
+        model.addAttribute("categories", categoryPage.getContent());
         model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", categoryPage.getTotalPages());
         model.addAttribute("title", "カテゴリ一覧");
 
         return "category/list";
