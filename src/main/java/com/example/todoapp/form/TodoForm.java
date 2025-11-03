@@ -1,6 +1,7 @@
 package com.example.todoapp.form;
 
 import java.time.LocalDate;
+import com.example.todoapp.entity.*;
 
 public class TodoForm {
 
@@ -9,6 +10,7 @@ public class TodoForm {
     private String description;
     private Long categoryId;
     private LocalDate dueDate;
+    private Status status;
 
     // --- getter & setter ---
     public Long getId() {
@@ -45,4 +47,7 @@ public class TodoForm {
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
+
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
 }

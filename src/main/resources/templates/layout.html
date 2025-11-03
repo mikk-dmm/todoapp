@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
 <head>
     <meta charset="UTF-8">
     <title th:text="${title} ?: 'Todoアプリ'">Todoアプリ</title>
 </head>
 <body>
     <!-- ヘッダー -->
-    <header style="background-color:#f5f5f5; padding:10px; border-bottom:1px solid #ccc;">
+    <header style="background-color:#f5f5f54b; padding:10px; border-bottom:1px solid #cccccc24;">
         <nav>
             <span style="font-weight:bold;">Todoアプリ</span> |
             <a th:href="@{/todos}">Todo一覧</a> |
@@ -15,9 +15,15 @@
         </nav>
     </header>
 
-    <!-- 各ページ内容 -->
-    <main style="padding:20px;" th:fragment="layout(content)">
+    <!-- ページ内容を差し込む部分 -->
+    <main style="padding:20px;">
+        <!-- ここにページ側の ::content が挿入される -->
         <div th:replace="${content}"></div>
     </main>
+
+    <!-- （任意）フッター -->
+    <footer style="padding:10px; border-top:1px solid #eee; margin-top:20px; font-size:0.9em;">
+        <p>&copy; 2025 TodoApp</p>
+    </footer>
 </body>
 </html>

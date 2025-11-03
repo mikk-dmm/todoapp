@@ -20,6 +20,8 @@
             <th class="border px-3 py-2">ID</th>
             <th class="border px-3 py-2">タイトル</th>
             <th class="border px-3 py-2">カテゴリ</th>
+            <th class="border px-3 py-2">期限</th>
+            <th class="border px-3 py-2">残り日数</th>
             <th class="border px-3 py-2">操作</th>
         </tr>
         </thead>
@@ -28,6 +30,11 @@
             <td class="border px-3 py-2" th:text="${todo.id}"></td>
             <td class="border px-3 py-2" th:text="${todo.title}"></td>
             <td class="border px-3 py-2" th:text="${todo.category != null ? todo.category.name : '未分類'}"></td>
+            <td class="border px-3 py-2" th:text="${todo.dueDate != null ? todo.dueDate : '未設定'}"></td>
+            <td class="border px-3 py-2"
+            th:text="${todo.deadlineStatus}"
+            th:classappend="${todo.deadlineStatus == '1日前' || todo.deadlineStatus == '期限切れ' || todo.deadlineStatus == '本日期限'} ? 'text-red-600 font-semibold' : ''">
+            </td>
             <td class="border px-3 py-2">
                 <a th:href="@{'/todos/' + ${todo.id}}" class="text-blue-600 hover:underline">詳細</a> |
                 <a th:href="@{'/todos/edit/' + ${todo.id}}" class="text-green-600 hover:underline">編集</a> |

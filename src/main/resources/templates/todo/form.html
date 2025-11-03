@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" 
+<html xmlns:th="http://www.thymeleaf.org"
     th:replace="~{layout :: layout(~{::content})}">
 
 <head>
@@ -42,6 +42,18 @@
             <label for="dueDate">期限：</label>
             <input type="date" id="dueDate" th:field="*{dueDate}" />
         </div>
+
+        <div class="mb-3">
+            <label for="status" class="block font-medium">ステータス：</label>
+            <select id="status" name="status" class="border p-1 rounded w-full">
+                <option th:each="s : ${T(com.example.todoapp.entity.Status).values()}"
+                        th:value="${s}"
+                        th:text="${s.label}"
+                        th:selected="${todoForm.status == s}">
+                </option>
+            </select>
+        </div>
+
 
         <div>
             <button type="submit" th:text="${mode == 'edit' ? '更新する' : '登録する'}"></button>

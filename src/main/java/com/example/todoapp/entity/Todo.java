@@ -2,12 +2,12 @@ package com.example.todoapp.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-
 import lombok.Data;
-
+import java.beans.Transient;
 import java.lang.annotation.Inherited;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Data
@@ -46,6 +46,34 @@ public class Todo {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    @Transient
+    public String getDeadlineStatus() {
+        if (dueDate == null) return "期限なし";
+
+        long daysBetween = ChronoUnit.DAYS.between(LocalDate.now(), dueDate);
+
+        if (daysBetween > 1) {
+            return "あと" + daysBetween + "日";
+        } else if (daysBetween == 1) {
+            return "1日前";
+        } else if (daysBetween == 0) {
+            return "本日期限";
+        } else {
+            return "期限切れ";
+        }
+    }
+
+    public String getStatusClass() {
+        if (dueDate == null) return "";
+        LocalDate today = LocalDate.now();
+        long daysBetween = ChronoUnit.DAYS.between(today, dueDate);
+
+        if (daysBetween <= 1) {
+            return "text-red-600 font-semibold";
+        }
+        return "";
     }
     // Getters and Setters
     public Long getId() { return id; }
