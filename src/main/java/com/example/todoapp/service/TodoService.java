@@ -7,6 +7,8 @@ import com.example.todoapp.repository.TodoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -79,6 +81,35 @@ public class TodoService {
             return todoRepository.findByUser(currentUser, pageable);
         } else {
             return todoRepository.findByUserAndTitleContainingIgnoreCase(currentUser, keyword, pageable);
+        }
+    }
+
+    public Page<Todo> searchTodosWithSort(String keyword, String sort, Pageable pageable) {
+        User currentUser = userService.getCurrentUser();
+
+        Sort sortOption;
+        switch (sort) {
+            case "title_asc":
+                sortOption = Sort.by(Sort.Direction.ASC, "title");
+                break;
+            case "title_desc":
+                sortOption = Sort.by(Sort.Direction.DESC, "title");
+                break;
+            case "dueDate_desc":
+                sortOption = Sort.by(Sort.Direction.DESC, "dueDate");
+                break;
+            case "dueDate_asc":
+            default:
+                sortOption = Sort.by(Sort.Direction.ASC, "dueDate");
+                break;
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortOption);
+
+        if (keyword == null || keyword.isEmpty()) {
+            return todoRepository.findByUser(currentUser, sortedPageable);
+        } else {
+            return todoRepository.findByUserAndTitleContainingIgnoreCase(currentUser, keyword, sortedPageable);
         }
     }
 }

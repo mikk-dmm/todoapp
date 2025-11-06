@@ -40,6 +40,7 @@ public class TodoViewController {
     @GetMapping
     public String listTodos(
             @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "sort", required = false, defaultValue = "dueDate_asc") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             Model model) {
@@ -50,6 +51,7 @@ public class TodoViewController {
         model.addAttribute("todoPage", todoPage);
         model.addAttribute("todos", todoPage.getContent());
         model.addAttribute("keyword", keyword);
+        model.addAttribute("sort", sort);
         model.addAttribute("categories", getUserCategories());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", todoPage.getTotalPages());

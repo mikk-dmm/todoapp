@@ -13,6 +13,18 @@
 
     <a th:href="@{/todos/new}" class="inline-block mb-3 text-blue-600 hover:underline">＋ 新規Todo作成</a>
 
+    <!-- ソート機能 -->
+    <div class="mb-4">
+        <span class="font-semibold">並び替え：</span>
+        <a th:href="@{/todos(sort='title_asc', keyword=${keyword})}"
+            class="text-blue-600 hover:underline">タイトル昇順</a> |
+        <a th:href="@{/todos(sort='title_desc', keyword=${keyword})}"
+            class="text-blue-600 hover:underline">タイトル降順</a> |
+        <a th;href="@{todos/(sort='dueDate_asc', keyword=${keyword})}"
+            class="text-blue-600 hover:underline">期限が近い順</a> |
+        <a th:href="@{/todos(sort='dueDate_desc', keyword=${keyword})}"
+            class="text-blue-600 hover:underline">期限が遠い順</a>
+    </div>
     <!-- 一覧テーブル -->
     <table class="border-collapse border border-gray-400 w-full text-left">
         <thead>
@@ -48,13 +60,13 @@
     <!-- ページネーション -->
     <div class="flex justify-center mt-4 gap-2">
         <a th:if="${!todoPage.first}"
-            th:href="@{|/todos?page=${todoPage.number - 1}&keyword=${keyword}|}"
+            th:href="@{|/todos?page=${todoPage.number - 1}&keyword=${keyword}&sort=${sort}|}"
             class="px-3 py-1 border rounded hover:bg-gray-100">前へ</a>
 
         <span th:text="${todoPage.number + 1} + ' / ' + ${todoPage.totalPages}"></span>
 
         <a th:if="${!todoPage.last}"
-            th:href="@{|/todos?page=${todoPage.number + 1}&keyword=${keyword}|}"
+            th:href="@{|/todos?page=${todoPage.number + 1}&keyword=${keyword}&sort=${sort}|}"
             class="px-3 py-1 border rounded hover:bg-gray-100">次へ</a>
     </div>
 </div>
