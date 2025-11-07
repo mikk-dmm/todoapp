@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -59,6 +60,7 @@ public class TodoViewController {
         model.addAttribute("categories", getUserCategories());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", todoPage.getTotalPages());
+        model.addAttribute("today", LocalDate.now());
         model.addAttribute("title", "Todo一覧");
 
         return "todo/list";
@@ -121,6 +123,12 @@ public class TodoViewController {
     @GetMapping("/delete/{id}")
     public String deleteTodo(@PathVariable Long id) {
         todoService.deleteById(id);
+        return "redirect:/todos";
+    }
+
+    @PostMapping("/{id}/toggle")
+    public String toggleCompleted(@PathVariable Long id) {
+        todoService.toggleCompleted(id);
         return "redirect:/todos";
     }
 }

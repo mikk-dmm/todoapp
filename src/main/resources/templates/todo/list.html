@@ -35,26 +35,42 @@
             <th class="border px-3 py-2">期限</th>
             <th class="border px-3 py-2">残り日数</th>
             <th class="border px-3 py-2">操作</th>
+            <th class="border px-3 py-2"></th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="todo : ${todoPage.content}">
+            <tr th:each="todo : ${todoPage.content}"
+                th:classappend="${todo.completed} ? 'bg-gray-200 line-through text-gray-500' :
+                    (${todo.dueDate != null && todo.dueDate.isBefore(today)} ? 'bg-yellow-100' :
+                    (${todo.dueDate != null && todo.dueDate.isEqual(today)} ? 'bg-red-100' :
+                    (${todo.dueDate != null && todo.dueDate.isBefore(today.plusDays(2))} ? 'bg-green-100' : 'bg-white')))"
+                class="border-b hover:bg-gray-50 transition">
+
             <td class="border px-3 py-2" th:text="${todo.id}"></td>
             <td class="border px-3 py-2" th:text="${todo.title}"></td>
             <td class="border px-3 py-2" th:text="${todo.category != null ? todo.category.name : '未分類'}"></td>
             <td class="border px-3 py-2" th:text="${todo.dueDate != null ? todo.dueDate : '未設定'}"></td>
             <td class="border px-3 py-2"
-            th:text="${todo.deadlineStatus}"
-            th:classappend="${todo.deadlineStatus == '1日前' || todo.deadlineStatus == '期限切れ' || todo.deadlineStatus == '本日期限'} ? 'text-red-600 font-semibold' : ''">
+                th:text="${todo.deadlineStatus}"
+                th:classappend="${todo.deadlineStatus == '1日前' || todo.deadlineStatus == '期限切れ' || todo.deadlineStatus == '本日期限'} ? 'text-red-600 font-semibold' : ''">
             </td>
             <td class="border px-3 py-2">
                 <a th:href="@{'/todos/' + ${todo.id}}" class="text-blue-600 hover:underline">詳細</a> |
                 <a th:href="@{'/todos/edit/' + ${todo.id}}" class="text-green-600 hover:underline">編集</a> |
                 <a th:href="@{'/todos/delete/' + ${todo.id}}" class="text-red-600 hover:underline"
-                    onclick="return confirm('本当に削除しますか？');">削除</a>
+                        onclick="return confirm('本当に削除しますか？');">削除</a>
             </td>
-        </tr>
+            <td class="border px-3 py-2">
+                <form th:action="@{'/todos/' + ${todo.id} + '/toggle'}" method="post">
+                    <input type="checkbox" name="completed"
+                            th:checked="${todo.completed}"
+                            onchange="this.form.submit()"
+                            class="w-5 h-5 accent-green-500">
+                </form>
+            </td>
+            </tr>
         </tbody>
+
     </table>
 
     <!-- ページネーション -->

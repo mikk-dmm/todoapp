@@ -112,4 +112,11 @@ public class TodoService {
             return todoRepository.findByUserAndTitleContainingIgnoreCase(currentUser, keyword, sortedPageable);
         }
     }
+
+    public void toggleCompleted(Long id) {
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Todoが存在しません: " + id));
+        todo.setCompleted(!todo.isCompleted());
+        todoRepository.save(todo);
+    }
 }
