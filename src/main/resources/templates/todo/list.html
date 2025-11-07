@@ -7,7 +7,7 @@
     <!-- 検索フォーム -->
     <form th:action="@{/todos}" method="get" class="mb-4 flex gap-2">
         <input type="text" name="keyword" placeholder="タイトルで検索"
-                th:value="${keyword}" class="border p-1 rounded w-60">
+                th:value="${keyword != null ? keyword : ''}" class="border p-1 rounded w-60">
         <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">検索</button>
     </form>
 
@@ -20,7 +20,7 @@
             class="text-blue-600 hover:underline">タイトル昇順</a> |
         <a th:href="@{/todos(sort='title_desc', keyword=${keyword})}"
             class="text-blue-600 hover:underline">タイトル降順</a> |
-        <a th;href="@{todos/(sort='dueDate_asc', keyword=${keyword})}"
+        <a th:href="@{/todos(sort='dueDate_asc', keyword=${keyword})}"
             class="text-blue-600 hover:underline">期限が近い順</a> |
         <a th:href="@{/todos(sort='dueDate_desc', keyword=${keyword})}"
             class="text-blue-600 hover:underline">期限が遠い順</a>

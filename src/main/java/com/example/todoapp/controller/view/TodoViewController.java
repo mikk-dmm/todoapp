@@ -45,8 +45,12 @@ public class TodoViewController {
             @RequestParam(defaultValue = "5") int size,
             Model model) {
 
+        if (keyword == null || keyword.equals("null")) {
+            keyword = "";
+        }
+
         Pageable pageable = PageRequest.of(page, size);
-        Page<Todo> todoPage = todoService.searchTodosWithPagination(keyword, pageable);
+        Page<Todo> todoPage = todoService.searchTodosWithSort(keyword, sort, pageable);
 
         model.addAttribute("todoPage", todoPage);
         model.addAttribute("todos", todoPage.getContent());

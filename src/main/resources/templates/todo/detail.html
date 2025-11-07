@@ -11,6 +11,7 @@
     <p><strong>ID:</strong> <span th:text="${todo.id}"></span></p>
     <p><strong>タイトル:</strong> <span th:text="${todo.title}"></span></p>
     <p><strong>詳細:</strong> <span th:text="${todo.description}"></span></p>
+    <p><strong>期限:</strong> <span th:text="${todo.dueDate != null ? todo.dueDate : '未設定'}"></span></p>
     <p><strong>カテゴリ:</strong> <span th:text="${todo.category != null ? todo.category.name : 'なし'}"></span></p>
     <p><strong>作成日:</strong> <span th:text="${todo.createdAt}"></span></p>
 </div>

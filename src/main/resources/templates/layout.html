@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${title} ?: 'Todoアプリ'">Todoアプリ</title>
+    <link href="/css/output.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-50 text-gray-900">
     <!-- ヘッダー -->
-    <header style="background-color:#f5f5f54b; padding:10px; border-bottom:1px solid #cccccc24;">
-        <nav>
-            <span style="font-weight:bold;">Todoアプリ</span> |
-            <a th:href="@{/todos}">Todo一覧</a> |
-            <a th:href="@{/categories}">カテゴリ管理</a> |
-            <a th:href="@{/logout}">ログアウト</a>
+    <header class="bg-white border-b border-gray-200 p-4 shadow-sm">
+        <nav class="flex items-center gap-3">
+            <span class="font-bold text-lg text-blue-600">Todoアプリ</span> |
+            <a th:href="@{/todos}" class="text-blue-500 hover:underline">Todo一覧</a> |
+            <a th:href="@{/categories}" class="text-blue-500 hover:underline">カテゴリ管理</a> |
+            <a th:href="@{/logout}" class="text-blue-500 hover:underline">ログアウト</a>
         </nav>
     </header>
 
     <!-- ページ内容を差し込む部分 -->
-    <main style="padding:20px;">
-        <!-- ここにページ側の ::content が挿入される -->
+    <main class="p-6">
         <div th:replace="${content}"></div>
     </main>
 
-    <!-- （任意）フッター -->
-    <footer style="padding:10px; border-top:1px solid #eee; margin-top:20px; font-size:0.9em;">
+    <!-- フッター -->
+    <footer class="border-t border-gray-200 text-center text-sm text-gray-500 mt-10 p-4">
         <p>&copy; 2025 TodoApp</p>
     </footer>
 </body>
