@@ -1,24 +1,26 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="${title}">Todo詳細</title>
-</head>
-<body>
-<h1 th:text="${title}"></h1>
+<html xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout :: layout(~{::content})}">
+<div th:fragment="content" class="p-6">
+    <h2 class="text-2xl font-bold mb-4" th:text="${title}">Todo詳細</h2>
 
-<div>
-    <p><strong>ID:</strong> <span th:text="${todo.id}"></span></p>
-    <p><strong>タイトル:</strong> <span th:text="${todo.title}"></span></p>
-    <p><strong>詳細:</strong> <span th:text="${todo.description}"></span></p>
-    <p><strong>期限:</strong> <span th:text="${todo.dueDate != null ? todo.dueDate : '未設定'}"></span></p>
-    <p><strong>カテゴリ:</strong> <span th:text="${todo.category != null ? todo.category.name : 'なし'}"></span></p>
-    <p><strong>作成日:</strong> <span th:text="${todo.createdAt}"></span></p>
+    <div class="max-w-xl mx-auto bg-white shadow-md rounded-lg p-6 space-y-2">
+        <p><strong>ID:</strong> <span th:text="${todo.id}"></span></p>
+        <p><strong>タイトル:</strong> <span th:text="${todo.title}"></span></p>
+        <p><strong>詳細:</strong> <span th:text="${todo.description}"></span></p>
+        <p><strong>期限:</strong> <span th:text="${todo.dueDate != null ? todo.dueDate : '未設定'}"></span></p>
+        <p><strong>カテゴリ:</strong> <span th:text="${todo.category != null ? todo.category.name : 'なし'}"></span></p>
+        <p><strong>作成日:</strong> <span th:text="${todo.createdAt}"></span></p>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+        <a th:href="@{/todos}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition">
+            一覧に戻る
+        </a>
+        <a th:href="@{'/todos/edit/' + ${todo.id}}"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">編集</a>
+        <a th:href="@{'/todos/delete/' + ${todo.id}}"
+            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">削除</a>
+    </div>
 </div>
-
-<a th:href="@{/todos}">一覧に戻る</a>
-<a th:href="@{'/todos/edit/' + ${todo.id}}">編集</a>
-<a th:href="@{'/todos/delete/' + ${todo.id}}">削除</a>
-
-</body>
 </html>

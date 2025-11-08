@@ -1,65 +1,61 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-    th:replace="~{layout :: layout(~{::content})}">
-
-<head>
-    <meta charset="UTF-8">
-    <title th:text="${mode == 'edit' ? 'Todo編集' : '新規Todo作成'}">Todoフォーム</title>
-</head>
-
-<body>
-<div th:fragment="content">
-
-    <h2 th:text="${mode == 'edit' ? 'Todo編集' : '新規Todo作成'}">Todoフォーム</h2>
+        th:replace="~{layout :: layout(~{::content})}">
+<div th:fragment="content" class="p-6">
+    <h2 class="text-2xl font-bold mb-4"
+        th:text="${mode == 'edit' ? 'Todo編集' : '新規Todo作成'}">Todoフォーム</h2>
 
     <form th:object="${todoForm}"
-        th:action="@{${mode == 'edit'} ? '/todos/update/' + ${todoForm.id} : '/todos'}"
-        method="post">
+            th:action="@{${mode == 'edit'} ? '/todos/update/' + ${todoForm.id} : '/todos'}"
+            method="post"
+            class="max-w-xl mx-auto bg-white shadow-md rounded-lg p-6">
 
-        <div>
-            <label for="title">タイトル：</label>
-            <input type="text" id="title" th:field="*{title}" required />
+        <div class="mb-4">
+            <label for="title" class="block font-semibold mb-1">タイトル</label>
+            <input type="text" id="title" th:field="*{title}" required
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring focus:ring-blue-200" />
         </div>
 
-        <div>
-            <label for="description">詳細：</label>
-            <textarea id="description" th:field="*{description}"></textarea>
+        <div class="mb-4">
+            <label for="description" class="block font-semibold mb-1">詳細</label>
+            <textarea id="description" th:field="*{description}" rows="3"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring focus:ring-blue-200"></textarea>
         </div>
 
-        <div>
-            <label for="categoryId">カテゴリ：</label>
-            <select id="categoryId" th:field="*{categoryId}">
+        <div class="mb-4">
+            <label for="categoryId" class="block font-semibold mb-1">カテゴリ</label>
+            <select id="categoryId" th:field="*{categoryId}"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring focus:ring-blue-200">
                 <option th:value="''">— 未選択 —</option>
-                <option th:each="c : ${categories}"
-                        th:value="${c.id}"
-                        th:text="${c.name}"
-                        th:selected="${todoForm.categoryId == c.id}">
-                </option>
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"
+                        th:selected="${todoForm.categoryId == c.id}"></option>
             </select>
         </div>
 
-        <div>
-            <label for="dueDate">期限：</label>
-            <input type="date" id="dueDate" th:field="*{dueDate}" />
+        <div class="mb-4">
+            <label for="dueDate" class="block font-semibold mb-1">期限</label>
+            <input type="date" id="dueDate" th:field="*{dueDate}"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring focus:ring-blue-200" />
         </div>
 
-        <div class="mb-3">
-            <label for="status" class="block font-medium">ステータス：</label>
-            <select id="status" name="status" class="border p-1 rounded w-full">
+        <div class="mb-4">
+            <label for="status" class="block font-semibold mb-1">ステータス</label>
+            <select id="status" th:field="*{status}"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring focus:ring-blue-200">
                 <option th:each="s : ${T(com.example.todoapp.entity.Status).values()}"
-                        th:value="${s}"
-                        th:text="${s.label}"
-                        th:selected="${todoForm.status == s}">
-                </option>
+                        th:value="${s}" th:text="${s.label}"></option>
             </select>
         </div>
 
-
-        <div>
-            <button type="submit" th:text="${mode == 'edit' ? '更新する' : '登録する'}"></button>
-            <a th:href="@{/todos}">戻る</a>
+        <div class="flex justify-end gap-3 mt-6">
+            <a th:href="@{/todos}"
+                class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition">
+                戻る
+            </a>
+            <button type="submit"
+                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                    th:text="${mode == 'edit' ? '更新する' : '登録する'}"></button>
         </div>
     </form>
 </div>
-</body>
 </html>

@@ -1,35 +1,42 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>新規登録</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body>
-<h2>ユーザー登録</h2>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout-auth :: authLayout(~{::content})}">
+<div th:fragment="content">
+    <h2 class="text-2xl font-semibold text-center text-blue-700 mb-6">新規登録</h2>
 
-<form th:action="@{/register}" th:object="${user}" method="post">
-    <div>
-        <label>ユーザー名：</label>
-        <input type="text" th:field="*{username}" required>
-    </div>
-    <div>
-        <label>パスワード：</label>
-        <input type="password" th:field="*{password}" required>
-    </div>
-    <div>
-        <button type="submit">登録</button>
-    </div>
-</form>
+    <form th:action="@{/register}" method="post" class="space-y-5">
+        <div>
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">ユーザー名</label>
+            <input type="text" id="username" name="username" required
+                    class="w-full border border-blue-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+        </div>
 
-<div th:if="${error}" style="color:red;">
-    <p th:text="${error}"></p>
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
+            <input type="password" id="password" name="password" required
+                    class="w-full border border-blue-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+        </div>
+
+        <div>
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">パスワード（確認）</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required
+                    class="w-full border border-blue-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+        </div>
+
+        <button type="submit"
+                class="w-full bg-cyan-500 text-white py-2.5 rounded-lg font-medium hover:bg-cyan-600 transition">
+            登録する
+        </button>
+
+        <div class="text-center mt-4">
+            <a th:href="@{/login}" class="text-blue-600 text-sm hover:underline">
+                すでにアカウントをお持ちの方はこちら
+            </a>
+        </div>
+
+        <div th:if="${param.error}" class="text-red-500 text-sm text-center mt-3">
+            登録エラーが発生しました。
+        </div>
+    </form>
 </div>
-
-<div th:if="${success}" style="color:green;">
-    <p th:text="${success}"></p>
-</div>
-
-<p><a th:href="@{/login}">ログイン画面に戻る</a></p>
-</body>
 </html>

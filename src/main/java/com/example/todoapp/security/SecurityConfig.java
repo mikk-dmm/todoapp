@@ -23,7 +23,7 @@ public class SecurityConfig {
                     "/h2-console/**",
                     "/login",
                     "/register",
-                    "/css/**"
+                    "/css/**", "/js/**", "/images/**"
                 ).permitAll()
                 .anyRequest().authenticated() // それ以外は認証必須
             )
@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .permitAll()
             )
             .logout(logout -> logout
+                .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
             );

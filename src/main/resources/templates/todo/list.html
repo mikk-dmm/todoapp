@@ -1,66 +1,74 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
         th:replace="~{layout :: layout(~{::content})}">
-<div th:fragment="content">
-    <h2 class="text-2xl font-semibold mb-4" th:text="${title}">Todo一覧</h2>
+<div th:fragment="content" class="p-6">
+    <h2 class="text-2xl font-bold mb-4" th:text="${title}">Todo一覧</h2>
 
     <!-- 検索フォーム -->
-    <form th:action="@{/todos}" method="get" class="mb-4 flex gap-2">
+    <form th:action="@{/todos}" method="get" class="flex items-center mb-4">
         <input type="text" name="keyword" placeholder="タイトルで検索"
-                th:value="${keyword != null ? keyword : ''}" class="border p-1 rounded w-60">
-        <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">検索</button>
+                th:value="${keyword != null ? keyword : ''}"
+                class="border border-gray-300 rounded-lg px-3 py-2 w-64 mr-2 focus:ring focus:ring-blue-200" />
+        <button type="submit"
+                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+            検索
+        </button>
+        <a th:href="@{/todos}" class="ml-3 text-gray-600 hover:underline">リセット</a>
     </form>
 
-    <a th:href="@{/todos/new}" class="inline-block mb-3 text-blue-600 hover:underline">＋ 新規Todo作成</a>
+    <!-- 新規作成ボタン -->
+    <a th:href="@{/todos/new}"
+        class="inline-block mb-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+        新規Todo作成
+    </a>
 
-    <!-- ソート機能 -->
+    <!-- 並び替え -->
     <div class="mb-4">
         <span class="font-semibold">並び替え：</span>
-        <a th:href="@{/todos(sort='title_asc', keyword=${keyword})}"
-            class="text-blue-600 hover:underline">タイトル昇順</a> |
-        <a th:href="@{/todos(sort='title_desc', keyword=${keyword})}"
-            class="text-blue-600 hover:underline">タイトル降順</a> |
-        <a th:href="@{/todos(sort='dueDate_asc', keyword=${keyword})}"
-            class="text-blue-600 hover:underline">期限が近い順</a> |
-        <a th:href="@{/todos(sort='dueDate_desc', keyword=${keyword})}"
-            class="text-blue-600 hover:underline">期限が遠い順</a>
+        <a th:href="@{/todos(sort='title_asc', keyword=${keyword})}" class="text-blue-600 hover:underline">タイトル昇順</a> |
+        <a th:href="@{/todos(sort='title_desc', keyword=${keyword})}" class="text-blue-600 hover:underline">タイトル降順</a> |
+        <a th:href="@{/todos(sort='dueDate_asc', keyword=${keyword})}" class="text-blue-600 hover:underline">期限が近い順</a> |
+        <a th:href="@{/todos(sort='dueDate_desc', keyword=${keyword})}" class="text-blue-600 hover:underline">期限が遠い順</a>
     </div>
+
     <!-- 一覧テーブル -->
-    <table class="border-collapse border border-gray-400 w-full text-left">
-        <thead>
-        <tr class="bg-gray-100">
-            <th class="border px-3 py-2">ID</th>
-            <th class="border px-3 py-2">タイトル</th>
-            <th class="border px-3 py-2">カテゴリ</th>
-            <th class="border px-3 py-2">期限</th>
-            <th class="border px-3 py-2">残り日数</th>
-            <th class="border px-3 py-2">操作</th>
-            <th class="border px-3 py-2"></th>
+    <table class="w-full border border-gray-300 text-left">
+        <thead class="bg-gray-100">
+        <tr>
+            <th class="px-3 py-2 border">ID</th>
+            <th class="px-3 py-2 border">タイトル</th>
+            <th class="px-3 py-2 border">カテゴリ</th>
+            <th class="px-3 py-2 border">期限</th>
+            <th class="px-3 py-2 border">残り日数</th>
+            <th class="px-3 py-2 border">操作</th>
+            <th class="px-3 py-2 border">完了</th>
         </tr>
         </thead>
         <tbody>
-            <tr th:each="todo : ${todoPage.content}"
-                th:classappend="${todo.completed} ? 'bg-gray-200 line-through text-gray-500' :
-                    (${todo.dueDate != null && todo.dueDate.isBefore(today)} ? 'bg-yellow-100' :
-                    (${todo.dueDate != null && todo.dueDate.isEqual(today)} ? 'bg-red-100' :
-                    (${todo.dueDate != null && todo.dueDate.isBefore(today.plusDays(2))} ? 'bg-green-100' : 'bg-white')))"
-                class="border-b hover:bg-gray-50 transition">
+        <tr th:each="todo : ${todoPage.content}"
+            th:classappend="
+                ${todo.completed} ? 'bg-gray-200 line-through text-gray-500' :
+                (${todo.dueDate != null && todo.dueDate.isBefore(today)} ? 'bg-yellow-100' :
+                (${todo.dueDate != null && todo.dueDate.isEqual(today)} ? 'bg-red-100' :
+                (${todo.dueDate != null && todo.dueDate.isBefore(today.plusDays(2))} ? 'bg-green-100' : 'bg-white')))
+            "
+            class="hover:bg-gray-50 transition">
 
-            <td class="border px-3 py-2" th:text="${todo.id}"></td>
-            <td class="border px-3 py-2" th:text="${todo.title}"></td>
-            <td class="border px-3 py-2" th:text="${todo.category != null ? todo.category.name : '未分類'}"></td>
-            <td class="border px-3 py-2" th:text="${todo.dueDate != null ? todo.dueDate : '未設定'}"></td>
-            <td class="border px-3 py-2"
+            <td class="px-3 py-2 border" th:text="${todo.id}"></td>
+            <td class="px-3 py-2 border" th:text="${todo.title}"></td>
+            <td class="px-3 py-2 border" th:text="${todo.category != null ? todo.category.name : '未分類'}"></td>
+            <td class="px-3 py-2 border" th:text="${todo.dueDate != null ? todo.dueDate : '未設定'}"></td>
+            <td class="px-3 py-2 border"
                 th:text="${todo.deadlineStatus}"
                 th:classappend="${todo.deadlineStatus == '1日前' || todo.deadlineStatus == '期限切れ' || todo.deadlineStatus == '本日期限'} ? 'text-red-600 font-semibold' : ''">
             </td>
-            <td class="border px-3 py-2">
-                <a th:href="@{'/todos/' + ${todo.id}}" class="text-blue-600 hover:underline">詳細</a> |
-                <a th:href="@{'/todos/edit/' + ${todo.id}}" class="text-green-600 hover:underline">編集</a> |
-                <a th:href="@{'/todos/delete/' + ${todo.id}}" class="text-red-600 hover:underline"
-                        onclick="return confirm('本当に削除しますか？');">削除</a>
+            <td class="px-3 py-2 border">
+                <a th:href="@{'/todos/' + ${todo.id}}" class="text-blue-500 hover:underline">詳細</a> |
+                <a th:href="@{'/todos/edit/' + ${todo.id}}" class="text-green-500 hover:underline">編集</a> |
+                <a th:href="@{'/todos/delete/' + ${todo.id}}" class="text-red-500 hover:underline"
+                    onclick="return confirm('本当に削除しますか？');">削除</a>
             </td>
-            <td class="border px-3 py-2">
+            <td class="px-3 py-2 border text-center">
                 <form th:action="@{'/todos/' + ${todo.id} + '/toggle'}" method="post">
                     <input type="checkbox" name="completed"
                             th:checked="${todo.completed}"
@@ -68,9 +76,8 @@
                             class="w-5 h-5 accent-green-500">
                 </form>
             </td>
-            </tr>
+        </tr>
         </tbody>
-
     </table>
 
     <!-- ページネーション -->
