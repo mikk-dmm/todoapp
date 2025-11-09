@@ -126,9 +126,14 @@ public class TodoViewController {
         return "redirect:/todos";
     }
 
+    //チェックボックス
     @PostMapping("/{id}/toggle")
-    public String toggleCompleted(@PathVariable Long id) {
+    public String toggleCompleted(
+            @PathVariable Long id,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "sort", required = false, defaultValue = "dueDate_asc") String sort) {
         todoService.toggleCompleted(id);
-        return "redirect:/todos";
+        return "redirect:/todos?page=" + page + "&keyword=" + (keyword != null ? keyword : "") + "&sort=" + sort;
     }
 }

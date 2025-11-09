@@ -70,6 +70,9 @@
             </td>
             <td class="px-3 py-2 border text-center">
                 <form th:action="@{'/todos/' + ${todo.id} + '/toggle'}" method="post">
+                    <input type="hidden" name="page" th:value="${todoPage.number}" />
+                    <input type="hidden" name="keyword" th:value="${keyword}" />
+                    <input type="hidden" name="sort" th:value="${sort}" />
                     <input type="checkbox" name="completed"
                             th:checked="${todo.completed}"
                             onchange="this.form.submit()"
