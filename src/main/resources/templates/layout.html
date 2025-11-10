@@ -3,27 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${title} ?: 'Todoアプリ'">Todoアプリ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/css/output.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-gray-50 text-gray-900 flex flex-col min-h-screen">
+
+</body>
     <!-- ヘッダー -->
-    <header class="bg-white border-b border-gray-200 p-4 shadow-sm">
-        <nav class="flex items-center gap-3">
-            <span class="font-bold text-lg text-blue-600">Todoアプリ</span> |
-            <a th:href="@{/todos}" class="text-blue-500 hover:underline">Todo一覧</a> |
-            <a th:href="@{/categories}" class="text-blue-500 hover:underline">カテゴリ管理</a> |
-            <a th:href="@{/logout}" class="text-blue-500 hover:underline">ログアウト</a>
-        </nav>
+    <header class="bg-white border-b border-gray-200 p-4 shadow-sm sticky top-0 z-40">
+        <div class="flex justify-between items-center max-w-5xl mx-auto">
+            <span class="font-bold text-lg text-blue-600">Todoアプリ</span>
+
+            <!-- モバイル用 -->
+            <button id="menu-btn" class="sm:hidden text-gray-700 focus:outline-none">
+                ☰
+            </button>
+
+            <!-- ナビゲーション -->
+            <nav id="menu" class="hidden sm:flex items-center gap-3">
+                <a th:href="@{/todos}" class="text-blue-500 hover:underline">Todo一覧</a>
+                <a th:href="@{/categories}" class="text-blue-500 hover:underline">カテゴリ管理</a>
+                <a th:href="@{/logout}" class="text-blue-500 hover:underline">ログアウト</a>
+            </nav>
+        </div>
+
+        <!-- モバイルメニュー -->
+        <div id="mobile-menu" class="hidden flex-col mt-2 sm:hidden">
+            <a th:href="@{/todos}" class="block py-2 border-t text-blue-500 hover:bg-blue-50">Todo一覧</a>
+            <a th:href="@{/categories}" class="block py-2 border-t text-blue-500 hover:bg-blue-50">カテゴリ管理</a>
+            <a th:href="@{/logout}" class="block py-2 border-t text-blue-500 hover:bg-blue-50">ログアウト</a>
+        </div>
     </header>
 
-    <!-- ページ内容を差し込む部分 -->
-    <main class="p-6">
+    <!-- ページ内容 -->
+    <main class="flex-grow p-4 sm:p-6 max-w-5xl mx-auto w-full">
         <div th:replace="${content}"></div>
     </main>
 
     <!-- フッター -->
-    <footer class="border-t border-gray-200 text-center text-sm text-gray-500 mt-10 p-4">
+    <footer class="border-t border-gray-200 text-center text-sm text-gray-500 mt-8 p-4">
         <p>&copy; 2025 TodoApp</p>
     </footer>
+
+    <!-- 天気ウィジェット -->
+    <div id="weather-widget"
+        class="fixed top-2 right-2 bg-white bg-opacity-80 backdrop-blur-sm shadow-lg rounded-xl p-3 text-xs sm:text-sm md:text-base z-50-w-40 sm:z-56">
+        <p class="text-gray-500 text-center">天気を取得中...</p>
+    </div>
+
+    <script src="/js/weather.js"></script>
+    <script>
+        // モバイルメニューの切り替え
+        const menuBtn = document.getElemntById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn?.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>
