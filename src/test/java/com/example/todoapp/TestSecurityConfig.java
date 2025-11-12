@@ -1,4 +1,4 @@
-package com.example.todoapp;
+package com.example.todoapp.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -9,11 +9,10 @@ import org.springframework.security.web.SecurityFilterChain;
 public class TestSecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // 全てのリクエストを許可（テスト用）
-        http
-            .csrf(csrf -> csrf.disable())
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         return http.build();
     }
+    
 }

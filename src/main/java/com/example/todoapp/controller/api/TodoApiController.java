@@ -39,19 +39,19 @@ public class TodoApiController {
 
     // 新規登録
     @PostMapping
-    public Todo createTodo(@RequestBody Map<String, Object> payload) {
-        // JSONからTodo本体を作成
+    public ResponseEntity<Todo> createTodo(@RequestBody Map<String, Object> payload) {
         Todo todo = new Todo();
         todo.setTitle((String) payload.get("title"));
         todo.setDescription((String) payload.get("description"));
 
-        // categoryIdを取得（存在しない場合はnull）
         Long categoryId = payload.get("categoryId") != null
                 ? ((Number) payload.get("categoryId")).longValue()
                 : null;
 
-        return todoService.createTodo(todo, categoryId);
+        Todo created = todoService.createTodo(todo, categoryId);
+        return ResponseEntity.ok(created);
     }
+
 
     /*更新*/
     @PutMapping("/{id}")

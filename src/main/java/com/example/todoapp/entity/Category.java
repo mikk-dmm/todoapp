@@ -25,6 +25,13 @@ public class Category {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public Category() {}
+    public Category(Long id, String name, User user) {
+        this.id = id;
+        this.name = name;
+        this.user = user;
+    }
+
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
