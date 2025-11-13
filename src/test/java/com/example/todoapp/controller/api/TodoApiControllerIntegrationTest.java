@@ -10,17 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-// Spring Boot起動 + MockMvc利用
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@ActiveProfiles("default")
 class TodoApiControllerIntegrationTest {
 
     @Autowired
@@ -36,13 +39,14 @@ class TodoApiControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // テストユーザー作成
+        userRepository.deleteAll();
+        todoRepository.deleteAll();
+
         user = new User();
         user.setUsername("testuser");
         user.setPassword("password");
         userRepository.save(user);
 
-        // Todo1件登録
         Todo todo = new Todo();
         todo.setTitle("既存タスク");
         todo.setUser(user);
@@ -50,6 +54,7 @@ class TodoApiControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser")
     void 一覧取得ができる() throws Exception {
         mockMvc.perform(get("/api/todos"))
                 .andExpect(status().isOk())
@@ -57,6 +62,7 @@ class TodoApiControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser")
     void ID指定で取得できる() throws Exception {
         Todo todo = todoRepository.findAll().get(0);
 
@@ -66,43 +72,30 @@ class TodoApiControllerIntegrationTest {
     }
 
     @Test
-    void Todoを新規登録できる() throws Exception {
-        String json = """
-                {
-                    "title": "新しいタスク",
-                    "description": "説明テキスト"
-                }
-                """;
+    @WithMockUser(username = "testuser")
+    void 作成できる() throws Exception {
+        String body = """
+            {
+                "title": "新タスク",
+                "description": "説明文"
+            }
+        """;
 
         mockMvc.perform(post("/api/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("新しいタスク"));
+                .andExpect(jsonPath("$.title").value("新タスク"));
     }
 
     @Test
-    void Todoを更新できる() throws Exception {
-        Todo todo = todoRepository.findAll().get(0);
-        String json = """
-                {
-                    "title": "更新後タイトル",
-                    "description": "更新後説明"
-                }
-                """;
-
-        mockMvc.perform(put("/api/todos/" + todo.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("更新後タイトル"));
-    }
-
-    @Test
-    void Todoを削除できる() throws Exception {
+    @WithMockUser(username = "testuser")
+    void 削除できる() throws Exception {
         Todo todo = todoRepository.findAll().get(0);
 
-        mockMvc.perform(delete("/api/todos/" + todo.getId()))
+        mockMvc.perform(delete("/api/todos/" + todo.getId())
+                .with(csrf()))
                 .andExpect(status().isNoContent());
     }
 }

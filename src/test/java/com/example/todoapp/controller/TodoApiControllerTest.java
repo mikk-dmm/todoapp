@@ -2,7 +2,7 @@ package com.example.todoapp.controller.api;
 
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.service.TodoService;
-import com.example.todoapp.config.TestSecurityConfig;
+import com.example.todoapp.security.TestSecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +14,17 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @Import(TestSecurityConfig.class)
 @WebMvcTest(TodoApiController.class)
@@ -43,7 +45,7 @@ class TodoApiControllerTest {
         Page<Todo> todoPage = new PageImpl<>(List.of(todo), PageRequest.of(0, 10), 1);
         Mockito.when(todoService.findAllByCurrentUser(0, 10)).thenReturn(todoPage);
 
-        mockMvc.perform(get("/api/todos"))
+        mockMvc.perform(get("/api/todos").with(user("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].title").value("APIテスト"));
     }
@@ -56,7 +58,7 @@ class TodoApiControllerTest {
 
         Mockito.when(todoService.findById(1L)).thenReturn(Optional.of(todo));
 
-        mockMvc.perform(get("/api/todos/1"))
+        mockMvc.perform(get("/api/todos/1").with(user("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("詳細"));
     }
@@ -65,7 +67,7 @@ class TodoApiControllerTest {
     void testFindById_NotFound() throws Exception {
         Mockito.when(todoService.findById(999L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/todos/999"))
+        mockMvc.perform(get("/api/todos/999").with(user("testuser")))
                 .andExpect(status().isNotFound());
     }
 
@@ -79,6 +81,8 @@ class TodoApiControllerTest {
         when(todoService.createTodo(any(Todo.class), any())).thenReturn(created);
 
         mockMvc.perform(post("/api/todos")
+                .with(user("testuser"))
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"title\":\"Test Title\", \"description\":\"Test Description\"}"))
             .andDo(print())
@@ -86,7 +90,6 @@ class TodoApiControllerTest {
             .andExpect(jsonPath("$.title").value("Test Title"))
             .andExpect(jsonPath("$.description").value("Test Description"));
     }
-
 
     @Test
     void testUpdateTodo() throws Exception {
@@ -102,6 +105,8 @@ class TodoApiControllerTest {
         Mockito.when(todoService.updateTodo(any(Todo.class), any())).thenReturn(updated);
 
         mockMvc.perform(put("/api/todos/1")
+                        .with(user("testuser"))
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"更新後\"}"))
                 .andExpect(status().isOk())
@@ -110,7 +115,7 @@ class TodoApiControllerTest {
 
     @Test
     void testDeleteTodo() throws Exception {
-        mockMvc.perform(delete("/api/todos/1"))
+        mockMvc.perform(delete("/api/todos/1").with(user("testuser")).with(csrf()))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(todoService, Mockito.times(1)).deleteById(1L);

@@ -10,21 +10,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ActiveProfiles("test")
+@ActiveProfiles("default")
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@WithMockUser(username = "testuser")
 class TodoApiIntegrationTest {
 
     @Autowired
@@ -51,6 +50,7 @@ class TodoApiIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser")
     @DisplayName("Todoを新規作成できること")
     void testCreateTodo() throws Exception {
         String requestBody = """
@@ -69,6 +69,7 @@ class TodoApiIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser")
     @DisplayName("Todo一覧を取得できること")
     void testGetTodos() throws Exception {
         Todo todo = new Todo("統合テストTodo", "一覧テスト用", false, testUser);
@@ -81,6 +82,7 @@ class TodoApiIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser")
     @DisplayName("Todoを更新できること")
     void testUpdateTodo() throws Exception {
         Todo todo = new Todo("旧タイトル", "旧説明", false, testUser);
@@ -102,6 +104,7 @@ class TodoApiIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser")
     @DisplayName("Todoを削除できること")
     void testDeleteTodo() throws Exception {
         Todo todo = new Todo("削除対象", "削除テスト用", false, testUser);

@@ -6,7 +6,7 @@ import com.example.todoapp.entity.User;
 import com.example.todoapp.service.CategoryService;
 import com.example.todoapp.service.TodoService;
 import com.example.todoapp.service.UserService;
-import com.example.todoapp.config.TestSecurityConfig;
+import com.example.todoapp.security.TestSecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,14 +18,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @Import(TestSecurityConfig.class)
 @WebMvcTest(TodoViewController.class)
@@ -62,7 +64,7 @@ class TodoViewControllerTest {
 
         Mockito.when(todoService.searchTodosWithSort(anyString(), anyString(), any())).thenReturn(todoPage);
 
-        mockMvc.perform(get("/todos"))
+        mockMvc.perform(get("/todos").with(user("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("todo/list"))
                 .andExpect(model().attributeExists("todoPage", "todos", "categories"));
@@ -70,7 +72,7 @@ class TodoViewControllerTest {
 
     @Test
     void testShowCreateForm() throws Exception {
-        mockMvc.perform(get("/todos/new"))
+        mockMvc.perform(get("/todos/new").with(user("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("todo/form"))
                 .andExpect(model().attributeExists("todoForm", "categories", "mode"));
@@ -84,7 +86,7 @@ class TodoViewControllerTest {
 
         Mockito.when(todoService.findById(1L)).thenReturn(Optional.of(todo));
 
-        mockMvc.perform(get("/todos/1"))
+        mockMvc.perform(get("/todos/1").with(user("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("todo/detail"))
                 .andExpect(model().attributeExists("todo"));
@@ -93,7 +95,9 @@ class TodoViewControllerTest {
     @Test
     void testCreateTodo() throws Exception {
         mockMvc.perform(post("/todos")
-                        .param("title", "新しいタスク"))
+                        .param("title", "新しいタスク")
+                        .with(user("testuser"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/todos"));
 
