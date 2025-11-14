@@ -2,6 +2,7 @@ package com.example.todoapp.service;
 
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.entity.User;
+import com.example.todoapp.entity.Status;
 import com.example.todoapp.repository.CategoryRepository;
 import com.example.todoapp.repository.TodoRepository;
 import org.springframework.data.domain.Page;
@@ -31,6 +32,7 @@ public class TodoService {
     public Todo createTodo(Todo todo, Long categoryId) {
         User currentUser = userService.getCurrentUser();
         todo.setUser(currentUser);
+        applyDefaultStatus(todo);
         if (categoryId != null) {
             categoryRepository.findById(categoryId).ifPresent(todo::setCategory);
         }
@@ -41,6 +43,7 @@ public class TodoService {
     public Todo updateTodo(Todo todo, Long categoryId) {
         User currentUser = userService.getCurrentUser();
         todo.setUser(currentUser);
+        applyDefaultStatus(todo);
         if (categoryId != null) {
             categoryRepository.findById(categoryId).ifPresent(todo::setCategory);
         } else {
@@ -99,6 +102,14 @@ public class TodoService {
                 sortOption = Sort.by(Sort.Direction.DESC, "dueDate");
                 break;
             case "dueDate_asc":
+                sortOption = Sort.by(Sort.Direction.ASC, "dueDate");
+                break;
+            case "created_at_desc":
+                sortOption = Sort.by(Sort.Direction.DESC, "createdAt");
+                break;
+            case "created_at_asc":
+                sortOption = Sort.by(Sort.Direction.ASC, "createdAt");
+                break;
             default:
                 sortOption = Sort.by(Sort.Direction.ASC, "dueDate");
                 break;
@@ -118,5 +129,11 @@ public class TodoService {
                 .orElseThrow(() -> new IllegalArgumentException("Todoが存在しません: " + id));
         todo.setCompleted(!todo.isCompleted());
         todoRepository.save(todo);
+    }
+
+    private void applyDefaultStatus(Todo todo) {
+        if (todo.getStatus() == null) {
+            todo.setStatus(Status.TODO);
+        }
     }
 }

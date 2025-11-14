@@ -10,7 +10,7 @@ public class TodoForm {
     private String description;
     private Long categoryId;
     private LocalDate dueDate;
-    private Status status;
+    private Status status = Status.TODO;
 
     // --- getter & setter ---
     public Long getId() {

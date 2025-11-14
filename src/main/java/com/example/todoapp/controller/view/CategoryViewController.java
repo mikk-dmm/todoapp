@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
 
 @Controller
 @RequestMapping("/categories")
@@ -34,11 +35,14 @@ public class CategoryViewController {
 
         User currentUser = userService.getCurrentUser();
         Pageable pageable = PageRequest.of(page, size);
-        Page<Category> categoryPage = categoryService.searchCategoriesWithPagination(currentUser.getId(), keyword, pageable);
+        String sanitizedKeyword = (StringUtils.hasText(keyword) && !"null".equalsIgnoreCase(keyword.trim()))
+                ? keyword.trim()
+                : "";
+        Page<Category> categoryPage = categoryService.searchCategoriesWithPagination(currentUser.getId(), sanitizedKeyword, pageable);
 
         model.addAttribute("categoryPage", categoryPage);
         model.addAttribute("categories", categoryPage.getContent());
-        model.addAttribute("keyword", keyword);
+        model.addAttribute("keyword", sanitizedKeyword);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", categoryPage.getTotalPages());
         model.addAttribute("title", "カテゴリ一覧");

@@ -2,6 +2,7 @@ package com.example.todoapp.controller.view;
 
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.entity.Category;
+import com.example.todoapp.entity.Status;
 import com.example.todoapp.entity.User;
 import com.example.todoapp.form.TodoForm;
 import com.example.todoapp.service.TodoService;
@@ -70,6 +71,7 @@ public class TodoViewController {
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         TodoForm form = new TodoForm();
+        form.setStatus(Status.TODO);
         model.addAttribute("todoForm", form);
         model.addAttribute("categories", getUserCategories());
         model.addAttribute("mode", "create");
@@ -94,6 +96,7 @@ public class TodoViewController {
         todoForm.setDescription(todo.getDescription());
         todoForm.setDueDate(todo.getDueDate());
         todoForm.setCategoryId(todo.getCategory() != null ? todo.getCategory().getId() : null);
+        todoForm.setStatus(todo.getStatus());
         model.addAttribute("todoForm", todoForm);
         model.addAttribute("categories", getUserCategories());
         model.addAttribute("mode", "edit");

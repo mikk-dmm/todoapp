@@ -1,79 +1,64 @@
 package com.example.todoapp.controller.api;
 
+import com.example.todoapp.dto.todo.TodoMapper;
+import com.example.todoapp.dto.todo.TodoRequest;
+import com.example.todoapp.dto.todo.TodoResponse;
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.service.TodoService;
-import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/todos")
 public class TodoApiController {
 
     private final TodoService todoService;
+    private final TodoMapper todoMapper;
 
-    public TodoApiController(TodoService todoService) {
+    public TodoApiController(TodoService todoService, TodoMapper todoMapper) {
         this.todoService = todoService;
+        this.todoMapper = todoMapper;
     }
 
     @GetMapping
-    public ResponseEntity<Page<Todo>> getTodos(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<TodoResponse>> getTodos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        Page<Todo> todos = todoService.findAllByCurrentUser(page, size);
+        Page<TodoResponse> todos = todoService.findAllByCurrentUser(page, size)
+                .map(todoMapper::toResponse);
         return ResponseEntity.ok(todos);
     }
 
-
-    // ID指定で取得
     @GetMapping("/{id}")
-    public ResponseEntity<Todo> findById(@PathVariable Long id) {
+    public ResponseEntity<TodoResponse> findById(@PathVariable Long id) {
         return todoService.findById(id)
+                .map(todoMapper::toResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 新規登録
     @PostMapping
-    public ResponseEntity<Todo> createTodo(@RequestBody Map<String, Object> payload) {
-        Todo todo = new Todo();
-        todo.setTitle((String) payload.get("title"));
-        todo.setDescription((String) payload.get("description"));
-
-        Long categoryId = payload.get("categoryId") != null
-                ? ((Number) payload.get("categoryId")).longValue()
-                : null;
-
-        Todo created = todoService.createTodo(todo, categoryId);
-        return ResponseEntity.ok(created);
+    public ResponseEntity<TodoResponse> createTodo(@Valid @RequestBody TodoRequest request) {
+        Todo todo = todoMapper.toEntity(request);
+        Todo created = todoService.createTodo(todo, request.getCategoryId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(todoMapper.toResponse(created));
     }
 
-
-    /*更新*/
     @PutMapping("/{id}")
-    public ResponseEntity<Todo> update(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
-        if (todoService.findById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Todo todo = new Todo();
-        todo.setId(id);
-        todo.setTitle((String) payload.get("title"));
-        todo.setDescription((String) payload.get("description"));
-
-        Long categoryId = payload.get("categoryId") != null
-                ? ((Number) payload.get("categoryId")).longValue()
-                : null;
-
-        Todo updated = todoService.updateTodo(todo, categoryId);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<TodoResponse> update(@PathVariable Long id, @Valid @RequestBody TodoRequest request) {
+        return todoService.findById(id)
+                .map(existing -> {
+                    todoMapper.applyRequest(existing, request);
+                    Todo updated = todoService.updateTodo(existing, request.getCategoryId());
+                    return ResponseEntity.ok(todoMapper.toResponse(updated));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // 削除
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         todoService.deleteById(id);

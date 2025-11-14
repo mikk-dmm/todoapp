@@ -7,24 +7,26 @@
     <link href="/css/output.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50 text-gray-900 flex flex-col min-h-screen">
-
-</body>
     <!-- ヘッダー -->
     <header class="bg-white border-b border-gray-200 p-4 shadow-sm sticky top-0 z-40">
-        <div class="flex justify-between items-center max-w-5xl mx-auto">
-            <span class="font-bold text-lg text-blue-600">Todoアプリ</span>
+        <div class="mx-auto w-full max-w-full flex flex-wrap items-start gap-4">
+            <div class="flex items-center justify-between w-full sm:w-auto">
+                <span class="font-bold text-lg text-blue-600">Todoアプリ</span>
 
-            <!-- モバイル用 -->
-            <button id="menu-btn" class="sm:hidden text-gray-700 focus:outline-none">
-                ☰
-            </button>
+                <!-- モバイル用 -->
+                <button id="menu-btn" class="sm:hidden text-gray-700 focus:outline-none">
+                    ☰
+                </button>
+            </div>
 
-            <!-- ナビゲーション -->
-            <nav id="menu" class="hidden sm:flex items-center gap-3">
-                <a th:href="@{/todos}" class="text-blue-500 hover:underline">Todo一覧</a>
-                <a th:href="@{/categories}" class="text-blue-500 hover:underline">カテゴリ管理</a>
-                <a th:href="@{/logout}" class="text-blue-500 hover:underline">ログアウト</a>
-            </nav>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto sm:ml-auto">
+                <!-- ナビゲーション -->
+                <nav id="menu" class="hidden sm:flex flex-wrap items-center gap-3 text-sm whitespace-nowrap">
+                    <a th:href="@{/todos}" class="text-blue-500 hover:underline">Todo一覧</a>
+                    <a th:href="@{/categories}" class="text-blue-500 hover:underline">カテゴリ管理</a>
+                    <a th:href="@{/logout}" class="text-blue-500 hover:underline">ログアウト</a>
+                </nav>
+            </div>
         </div>
 
         <!-- モバイルメニュー -->
@@ -36,7 +38,7 @@
     </header>
 
     <!-- ページ内容 -->
-    <main class="flex-grow p-4 sm:p-6 max-w-5xl mx-auto w-full">
+    <main class="flex-grow p-4 sm:p-6 w-full max-w-full">
         <div th:replace="${content}"></div>
     </main>
 
@@ -45,20 +47,16 @@
         <p>&copy; 2025 TodoApp</p>
     </footer>
 
-    <!-- 天気ウィジェット -->
-    <div id="weather-widget"
-        class="fixed top-2 right-2 bg-white bg-opacity-80 backdrop-blur-sm shadow-lg rounded-xl p-3 text-xs sm:text-sm md:text-base z-50-w-40 sm:z-56">
-        <p class="text-gray-500 text-center">天気を取得中...</p>
-    </div>
-
     <script src="/js/weather.js"></script>
     <script>
         // モバイルメニューの切り替え
-        const menuBtn = document.getElemntById('menu-btn');
+        const menuBtn = document.getElementById('menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
-        menuBtn?.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
     </script>
 </body>
 </html>

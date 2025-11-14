@@ -44,11 +44,17 @@ public class Todo {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        if (status == null) {
+            status = Status.TODO;
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+        if (status == null) {
+            status = Status.TODO;
+        }
     }
 
     @Transient

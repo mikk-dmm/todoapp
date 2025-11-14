@@ -1,5 +1,6 @@
 package com.example.todoapp.controller.api;
 
+import com.example.todoapp.dto.todo.TodoMapper;
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.service.TodoService;
 import com.example.todoapp.security.TestSecurityConfig;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-@Import(TestSecurityConfig.class)
+@Import({TestSecurityConfig.class, TodoMapper.class})
 @WebMvcTest(TodoApiController.class)
 class TodoApiControllerTest {
 
@@ -86,9 +87,20 @@ class TodoApiControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"title\":\"Test Title\", \"description\":\"Test Description\"}"))
             .andDo(print())
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.title").value("Test Title"))
             .andExpect(jsonPath("$.description").value("Test Description"));
+    }
+
+    @Test
+    void testCreateTodo_ValidationError() throws Exception {
+        mockMvc.perform(post("/api/todos")
+                        .with(user("testuser"))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.title").value("タイトルは必須です"));
     }
 
     @Test

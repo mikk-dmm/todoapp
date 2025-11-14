@@ -1,98 +1,225 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
         th:replace="~{layout :: layout(~{::content})}">
-<div th:fragment="content" class="p-4 sm:p-6 max-w-5xl mx-auto">
+<div th:fragment="content" class="p-2 sm:p-4 w-full">
+    <div class="relative">
+        <div class="mb-5 sm:mb-0 sm:absolute sm:-top-4 sm:-right-4 sm:w-80 lg:w-[28rem] w-full z-10">
+            <div id="weather-widget"
+                    aria-live="polite"
+                    class="bg-white/95 backdrop-blur-sm shadow-2xl rounded-2xl p-4 sm:p-5 text-xs sm:text-sm md:text-base border border-blue-100 w-full ring-1 ring-blue-50">
+                <p class="text-gray-500 text-center text-xs sm:text-sm">天気を取得中…</p>
+            </div>
+        </div>
 
-    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center sm:text-left" th:text="${title}">Todo一覧</h1>
+        <div class="sm:pr-80 lg:pr-[32rem]">
+            <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center sm:text-left" th:text="${title}">Todo一覧</h1>
 
-    <!-- 検索フォーム -->
-    <form th:action="@{/todos}" method="get"
-        class="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
-    <input type="text" name="keyword" placeholder="タイトルで検索"
-            th:value="${keyword != null ? keyword : ''}"
-            class="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-72 focus:ring focus:ring-blue-200">
-    <div class="flex gap-2">
-        <button type="submit"
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition w-full sm:w-auto">検索</button>
-        <a th:href="@{/todos}" class="text-gray-600 hover:underline text-center sm:text-left w-full sm:w-auto">リセット</a>
-    </div>
-    </form>
-
-    <!-- 新規作成ボタン -->
-    <a th:href="@{/todos/new}"
-        class="inline-block mb-6 bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600 transition w-full sm:w-auto text-center">新規Todo作成</a>
-
-    <!-- 並び替え -->
-    <div class="mb-4 text-sm sm:text-base text-center sm:text-left">
-        <span class="font-semibold">並び替え：</span>
-        <a th:href="@{/todos(sort='title_asc', keyword=${keyword})}" class="text-blue-600 hover:underline">タイトル昇順</a>
-        <a th:href="@{/todos(sort='title_desc', keyword=${keyword})}" class="text-blue-600 hover:underline">タイトル降順</a>
-        <a th:href="@{/todos(sort='dueDate_asc', keyword=${keyword})}" class="text-blue-600 hover:underline">期限が近い順</a>
-        <a th:href="@{/todos(sort='dueDate_desc', keyword=${keyword})}" class="text-blue-600 hover:underline">期限が遠い順</a>
-    </div>
-
-    <!-- 一覧テーブル（横スクロール対応） -->
-    <div class="overflow-x-auto">
-        <table class="min-w-full border border-gray-300 text-left text-sm sm:text-base">
-            <thead class="bg-gray-100">
-            <tr>
-                <th class="px-3 py-2 border">ID</th>
-                <th class="px-3 py-2 border">タイトル</th>
-                <th class="px-3 py-2 border">カテゴリ</th>
-                <th class="px-3 py-2 border">期限</th>
-                <th class="px-3 py-2 border">残り日数</th>
-                <th class="px-3 py-2 border">操作</th>
-                <th class="px-3 py-2 border text-center">完了</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="todo : ${todoPage.content}"
-                th:classappend="${todo.completed} ? 'bg-gray-200 line-through text-gray-500' :
-                        (${todo.dueDate != null && todo.dueDate.isBefore(today)} ? 'bg-yellow-100' :
-                        (${todo.dueDate != null && todo.dueDate.isEqual(today)} ? 'bg-red-100' :
-                        (${todo.dueDate != null && todo.dueDate.isBefore(today.plusDays(2))} ? 'bg-green-100' : 'bg-white')))"
-                class="hover:bg-gray-50 transition">
-                <td class="px-3 py-2 border" th:text="${todo.id}"></td>
-                <td class="px-3 py-2 border" th:text="${todo.title}"></td>
-                <td class="px-3 py-2 border" th:text="${todo.category != null ? todo.category.name : '未分類'}"></td>
-                <td class="px-3 py-2 border" th:text="${todo.dueDate != null ? todo.dueDate : '未設定'}"></td>
-                <td class="px-3 py-2 border"
-                    th:text="${todo.deadlineStatus}"
-                    th:classappend="${todo.deadlineStatus == '1日前' || todo.deadlineStatus == '期限切れ' || todo.deadlineStatus == '本日期限'} ? 'text-red-600 font-semibold' : ''">
-                </td>
-                <td class="px-3 py-2 border whitespace-nowrap">
-                <a th:href="@{'/todos/' + ${todo.id}}" class="text-blue-500 hover:underline">詳細</a> |
-                <a th:href="@{'/todos/edit/' + ${todo.id}}" class="text-green-500 hover:underline">編集</a> |
-                <a th:href="@{'/todos/delete/' + ${todo.id}}" class="text-red-500 hover:underline"
-                    onclick="return confirm('本当に削除しますか？');">削除</a>
-                </td>
-                <td class="px-3 py-2 border text-center">
-                    <form th:action="@{'/todos/' + ${todo.id} + '/toggle'}" method="post">
-                    <input type="hidden" name="page" th:value="${todoPage.number}">
-                    <input type="hidden" name="keyword" th:value="${keyword}">
-                    <input type="hidden" name="sort" th:value="${sort}">
-                    <input type="checkbox" name="completed"
-                            th:checked="${todo.completed}"
-                            onchange="this.form.submit()"
-                            class="w-5 h-5 accent-green-500">
+            <!-- 検索フォーム -->
+            <form th:action="@{/todos}" method="get"
+                    class="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+                <input type="text" name="keyword" placeholder="タイトルで検索"
+                        th:value="${keyword != null ? keyword : ''}"
+                        class="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-72 focus:ring focus:ring-blue-200">
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button type="submit"
+                            class="flex-1 sm:flex-none bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">検索</button>
+                    <a th:href="@{/todos}" class="flex-1 sm:flex-none text-gray-600 hover:underline text-center sm:text-left px-4 py-2 border border-gray-200 rounded">リセット</a>
+                </div>
             </form>
-            </td>
-            </tr>
-            </tbody>
-        </table>
+
+            <!-- 新規作成ボタン -->
+            <a th:href="@{/todos/new}"
+                class="inline-block mb-6 bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600 transition w-full sm:w-auto text-center">新規Todo作成</a>
+
+            <!-- 並び替え -->
+            <th:block th:with="currentSortLabel=${sort == 'title_desc' ? 'タイトル降順'
+                                                : (sort == 'dueDate_asc' ? '期限が近い順'
+                                                : (sort == 'dueDate_desc' ? '期限が遠い順'
+                                                : (sort == 'created_at_desc' ? '作成日が新しい順'
+                                                : (sort == 'created_at_asc' ? '作成日が古い順'
+                                                : 'タイトル昇順'))))}">
+                <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-base font-semibold text-gray-900">並び替え</p>
+                        <p class="text-xs text-gray-500">現在: <span th:text="${currentSortLabel}">タイトル昇順</span></p>
+                    </div>
+                    <div class="relative inline-block text-left w-full sm:w-auto">
+                        <button type="button"
+                                id="sortMenuButton"
+                                class="w-full sm:w-auto inline-flex items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                aria-controls="sortMenuPanel">
+                            <span>並び替えを選ぶ</span>
+                            <span class="text-xs text-gray-500">現在: <span th:text="${currentSortLabel}">タイトル昇順</span></span>
+                            <span aria-hidden="true" class="text-gray-400">▾</span>
+                        </button>
+                        <div id="sortMenuPanel"
+                                class="hidden absolute right-0 mt-2 w-full sm:w-64 rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 z-20 overflow-hidden"
+                                role="menu"
+                                aria-labelledby="sortMenuButton">
+                            <p class="px-4 pt-4 pb-2 text-xs text-gray-500">条件を選択してください</p>
+                            <div class="py-2">
+                                <a th:href="@{/todos(sort='title_asc', keyword=${keyword})}"
+                                        class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                                        th:classappend="${sort == 'title_asc' or sort == null} ? 'bg-blue-50 text-blue-700 font-semibold' : ''">
+                                    <span>タイトル昇順</span>
+                                    <span class="text-blue-600 text-xs font-semibold" th:if="${sort == 'title_asc' or sort == null}">✓</span>
+                                </a>
+                                <a th:href="@{/todos(sort='title_desc', keyword=${keyword})}"
+                                        class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                                        th:classappend="${sort == 'title_desc'} ? 'bg-blue-50 text-blue-700 font-semibold' : ''">
+                                    <span>タイトル降順</span>
+                                    <span class="text-blue-600 text-xs font-semibold" th:if="${sort == 'title_desc'}">✓</span>
+                                </a>
+                                <a th:href="@{/todos(sort='dueDate_asc', keyword=${keyword})}"
+                                        class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                                        th:classappend="${sort == 'dueDate_asc'} ? 'bg-blue-50 text-blue-700 font-semibold' : ''">
+                                    <span>期限が近い順</span>
+                                    <span class="text-blue-600 text-xs font-semibold" th:if="${sort == 'dueDate_asc'}">✓</span>
+                                </a>
+                                <a th:href="@{/todos(sort='dueDate_desc', keyword=${keyword})}"
+                                        class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                                        th:classappend="${sort == 'dueDate_desc'} ? 'bg-blue-50 text-blue-700 font-semibold' : ''">
+                                    <span>期限が遠い順</span>
+                                    <span class="text-blue-600 text-xs font-semibold" th:if="${sort == 'dueDate_desc'}">✓</span>
+                                </a>
+                                <a th:href="@{/todos(sort='created_at_desc', keyword=${keyword})}"
+                                        class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                                        th:classappend="${sort == 'created_at_desc'} ? 'bg-blue-50 text-blue-700 font-semibold' : ''">
+                                    <span>作成日が新しい順</span>
+                                    <span class="text-blue-600 text-xs font-semibold" th:if="${sort == 'created_at_desc'}">✓</span>
+                                </a>
+                                <a th:href="@{/todos(sort='created_at_asc', keyword=${keyword})}"
+                                        class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                                        th:classappend="${sort == 'created_at_asc'} ? 'bg-blue-50 text-blue-700 font-semibold' : ''">
+                                    <span>作成日が古い順</span>
+                                    <span class="text-blue-600 text-xs font-semibold" th:if="${sort == 'created_at_asc'}">✓</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+
+            <!-- 一覧テーブル（横スクロール対応） -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-300 text-left text-sm sm:text-base">
+                    <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-3 py-2 border">ID</th>
+                        <th class="px-3 py-2 border">タイトル / ステータス</th>
+                        <th class="px-3 py-2 border">カテゴリ</th>
+                        <th class="px-3 py-2 border">期限</th>
+                        <th class="px-3 py-2 border">残り日数</th>
+                        <th class="px-3 py-2 border">操作</th>
+                        <th class="px-3 py-2 border text-center">完了</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="todo : ${todoPage.content}"
+                        th:classappend="${todo.completed} ? 'bg-gray-200 line-through text-gray-500' :
+                                (${todo.dueDate != null && todo.dueDate.isBefore(today)} ? 'bg-yellow-100' :
+                                (${todo.dueDate != null && todo.dueDate.isEqual(today)} ? 'bg-red-100' :
+                                (${todo.dueDate != null && todo.dueDate.isBefore(today.plusDays(2))} ? 'bg-green-100' : 'bg-white')))"
+                        class="hover:bg-gray-50 transition">
+                        <td class="px-3 py-2 border" th:text="${todo.id}"></td>
+                        <td class="px-3 py-2 border">
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 sm:whitespace-nowrap">
+                                <span class="font-medium" th:text="${todo.title}"></span>
+                                <span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 whitespace-nowrap"
+                                        th:text="${todo.status != null ? todo.status.label : '未設定'}"
+                                        th:classappend="${(todo.status == T(com.example.todoapp.entity.Status).DONE) ?
+                                                        'bg-green-100 text-green-700' :
+                                                        (todo.status == T(com.example.todoapp.entity.Status).IN_PROGRESS) ?
+                                                        'bg-blue-100 text-blue-700' :
+                                                        'bg-gray-100 text-gray-600'}">
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-3 py-2 border" th:text="${todo.category != null ? todo.category.name : '未分類'}"></td>
+                        <td class="px-3 py-2 border" th:text="${todo.dueDate != null ? todo.dueDate : '未設定'}"></td>
+                        <td class="px-3 py-2 border"
+                            th:text="${todo.deadlineStatus}"
+                            th:classappend="${todo.deadlineStatus == '1日前' || todo.deadlineStatus == '期限切れ' || todo.deadlineStatus == '本日期限'} ? 'text-red-600 font-semibold' : ''">
+                        </td>
+                        <td class="px-3 py-2 border whitespace-nowrap">
+                            <a th:href="@{'/todos/' + ${todo.id}}" class="text-blue-500 hover:underline">詳細</a> |
+                            <a th:href="@{'/todos/edit/' + ${todo.id}}" class="text-green-500 hover:underline">編集</a> |
+                            <a th:href="@{'/todos/delete/' + ${todo.id}}" class="text-red-500 hover:underline"
+                                onclick="return confirm('本当に削除しますか？');">削除</a>
+                        </td>
+                        <td class="px-3 py-2 border text-center">
+                            <form th:action="@{'/todos/' + ${todo.id} + '/toggle'}" method="post">
+                                <input type="hidden" name="page" th:value="${todoPage.number}">
+                                <input type="hidden" name="keyword" th:value="${keyword}">
+                                <input type="hidden" name="sort" th:value="${sort}">
+                                <input type="checkbox" name="completed"
+                                        th:checked="${todo.completed}"
+                                        onchange="this.form.submit()"
+                                        class="w-5 h-5 accent-green-500">
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ページネーション -->
+            <div class="flex justify-center mt-6 gap-3 text-sm sm:text-base">
+                <a th:if="${!todoPage.first}"
+                    th:href="@{|/todos?page=${todoPage.number - 1}&keyword=${keyword}&sort=${sort}|}"
+                    class="px-3 py-1 border rounded hover:bg-gray-100">前へ</a>
+
+                <span th:text="${todoPage.number + 1} + ' / ' + ${todoPage.totalPages}"></span>
+
+                <a th:if="${!todoPage.last}"
+                    th:href="@{|/todos?page=${todoPage.number + 1}&keyword=${keyword}&sort=${sort}|}"
+                    class="px-3 py-1 border rounded hover:bg-gray-100">次へ</a>
+            </div>
+        </div>
     </div>
+    <script>
+        (() => {
+            const trigger = document.getElementById('sortMenuButton');
+            const panel = document.getElementById('sortMenuPanel');
+            if (!trigger || !panel) {
+                return;
+            }
 
-    <!-- ページネーション -->
-    <div class="flex justify-center mt-6 gap-3 text-sm sm:text-base">
-        <a th:if="${!todoPage.first}"
-            th:href="@{|/todos?page=${todoPage.number - 1}&keyword=${keyword}&sort=${sort}|}"
-            class="px-3 py-1 border rounded hover:bg-gray-100">前へ</a>
+            const closeMenu = () => {
+                panel.classList.add('hidden');
+                trigger.setAttribute('aria-expanded', 'false');
+            };
 
-        <span th:text="${todoPage.number + 1} + ' / ' + ${todoPage.totalPages}"></span>
+            const toggleMenu = () => {
+                const willOpen = panel.classList.contains('hidden');
+                if (willOpen) {
+                    panel.classList.remove('hidden');
+                    trigger.setAttribute('aria-expanded', 'true');
+                } else {
+                    closeMenu();
+                }
+            };
 
-        <a th:if="${!todoPage.last}"
-        th:href="@{|/todos?page=${todoPage.number + 1}&keyword=${keyword}&sort=${sort}|}"
-        class="px-3 py-1 border rounded hover:bg-gray-100">次へ</a>
-    </div>
+            trigger.addEventListener('click', (event) => {
+                event.preventDefault();
+                toggleMenu();
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!panel.contains(event.target) && event.target !== trigger && !trigger.contains(event.target)) {
+                    closeMenu();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeMenu();
+                    trigger.focus();
+                }
+            });
+        })();
+    </script>
 </div>
 </html>

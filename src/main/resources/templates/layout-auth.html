@@ -2,14 +2,15 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org" th:fragment="authLayout(content)">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title} ?: '認証画面'">認証画面</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-blue-100 via-blue-50 to-cyan-100 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-br from-blue-100 via-blue-50 to-cyan-100 min-h-screen flex items-center justify-center px-4 py-8 sm:py-0">
 
-<div class="bg-white/90 backdrop-blur-md p-10 rounded-3xl shadow-2xl w-full max-w-md border border-blue-100">
+<div class="bg-white/90 backdrop-blur-md p-6 sm:p-10 rounded-3xl shadow-2xl w-full max-w-sm sm:max-w-md border border-blue-100">
     <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-blue-600 tracking-wide">My Todo App</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-blue-600 tracking-wide">My Todo App</h1>
         <p class="text-gray-500 text-sm mt-1">あなたの毎日をもっと整理しよう</p>
     </div>
 

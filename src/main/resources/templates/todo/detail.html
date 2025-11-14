@@ -7,6 +7,15 @@
     <div class="max-w-xl mx-auto bg-white shadow-md rounded-lg p-6 space-y-2">
         <p><strong>ID:</strong> <span th:text="${todo.id}"></span></p>
         <p><strong>タイトル:</strong> <span th:text="${todo.title}"></span></p>
+        <p>
+            <strong>ステータス:</strong>
+            <span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600"
+                    th:text="${todo.status != null ? todo.status.label : '未設定'}"
+                    th:classappend="${todo.status == T(com.example.todoapp.entity.Status).DONE} ? ' bg-green-100 text-green-700' :
+                    (${todo.status == T(com.example.todoapp.entity.Status).IN_PROGRESS} ? ' bg-blue-100 text-blue-700' :
+                    ' bg-gray-100 text-gray-600')">
+            </span>
+        </p>
         <p><strong>詳細:</strong> <span th:text="${todo.description}"></span></p>
         <p><strong>期限:</strong> <span th:text="${todo.dueDate != null ? todo.dueDate : '未設定'}"></span></p>
         <p><strong>カテゴリ:</strong> <span th:text="${todo.category != null ? todo.category.name : 'なし'}"></span></p>
