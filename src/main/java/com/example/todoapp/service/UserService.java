@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserService implements CurrentUserProvider {
 
     private final UserRepository userRepository;
 
@@ -41,6 +41,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    @Override
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();

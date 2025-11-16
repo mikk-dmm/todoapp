@@ -39,7 +39,7 @@ public class LoginController {
             return "auth/register";
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("USER");
+        user.setRole("ROLE_USER");
         userRepository.save(user);
         model.addAttribute("success", "登録が完了しました。ログインしてください。");
         return "redirect:/login";

@@ -19,18 +19,18 @@ import java.util.Optional;
 public class TodoService {
 
     private final TodoRepository todoRepository;
-    private final UserService userService;
+    private final CurrentUserProvider currentUserProvider;
     private final CategoryRepository categoryRepository;
 
-    public TodoService(TodoRepository todoRepository, UserService userService, CategoryRepository categoryRepository) {
+    public TodoService(TodoRepository todoRepository, CurrentUserProvider currentUserProvider, CategoryRepository categoryRepository) {
         this.todoRepository = todoRepository;
-        this.userService = userService;
+        this.currentUserProvider = currentUserProvider;
         this.categoryRepository = categoryRepository;
     }
 
     // Todo作成
     public Todo createTodo(Todo todo, Long categoryId) {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         todo.setUser(currentUser);
         applyDefaultStatus(todo);
         if (categoryId != null) {
@@ -41,7 +41,7 @@ public class TodoService {
 
     // Todo更新
     public Todo updateTodo(Todo todo, Long categoryId) {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         todo.setUser(currentUser);
         applyDefaultStatus(todo);
         if (categoryId != null) {
@@ -54,14 +54,14 @@ public class TodoService {
 
     //ページネーション対応一覧
     public Page<Todo> findAllByCurrentUser(int page, int size) {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         Pageable pageable = PageRequest.of(page, size);
         return todoRepository.findByUser(currentUser, pageable);
     }
 
     //ページネーション対応検索
     public Page<Todo> searchTodos(String keyword, int page, int size) {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         Pageable pageable = PageRequest.of(page, size);
         if (keyword == null || keyword.isEmpty()) {
             return todoRepository.findByUser(currentUser, pageable);
@@ -79,7 +79,7 @@ public class TodoService {
     }
 
     public Page<Todo> searchTodosWithPagination(String keyword, Pageable pageable) {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         if (keyword == null || keyword.isEmpty()) {
             return todoRepository.findByUser(currentUser, pageable);
         } else {
@@ -88,7 +88,7 @@ public class TodoService {
     }
 
     public Page<Todo> searchTodosWithSort(String keyword, String sort, Pageable pageable) {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = currentUserProvider.getCurrentUser();
 
         Sort sortOption;
         switch (sort) {

@@ -4,12 +4,16 @@ import com.example.todoapp.entity.Todo;
 import com.example.todoapp.entity.User;
 import com.example.todoapp.repository.TodoRepository;
 import com.example.todoapp.repository.UserRepository;
+import com.example.todoapp.repository.CategoryRepository;
+import com.example.todoapp.security.TestSecurityConfig;
 import com.example.todoapp.service.TodoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -18,6 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Transactional
+@ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class TodoServiceIntegrationTest {
 
     @Autowired
@@ -29,11 +35,15 @@ class TodoServiceIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     private User testUser;
 
     @BeforeEach
     void setup() {
         todoRepository.deleteAll();
+        categoryRepository.deleteAll();
         userRepository.deleteAll();
 
         testUser = new User();

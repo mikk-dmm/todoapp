@@ -5,12 +5,14 @@ import com.example.todoapp.entity.Todo;
 import com.example.todoapp.entity.User;
 import com.example.todoapp.service.CategoryService;
 import com.example.todoapp.service.TodoService;
-import com.example.todoapp.service.UserService;
+import com.example.todoapp.service.CurrentUserProvider;
 import com.example.todoapp.security.TestSecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.ActiveProfiles;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import java.util.List;
@@ -29,7 +32,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-@Import(TestSecurityConfig.class)
+@ActiveProfiles("test")
+@Import({TestSecurityConfig.class, TodoViewControllerTest.TestCurrentUserConfig.class})
 @WebMvcTest(TodoViewController.class)
 class TodoViewControllerTest {
 
@@ -40,18 +44,15 @@ class TodoViewControllerTest {
     private TodoService todoService;
     @MockBean
     private CategoryService categoryService;
-    @MockBean
-    private UserService userService;
+
+    @Autowired
+    private CurrentUserProvider currentUserProvider;
 
     private User mockUser;
 
     @BeforeEach
     void setup() {
-        mockUser = new User();
-        mockUser.setId(1L);
-        mockUser.setUsername("testUser");
-
-        Mockito.when(userService.getCurrentUser()).thenReturn(mockUser);
+        mockUser = currentUserProvider.getCurrentUser();
         Mockito.when(categoryService.findByUserId(1L)).thenReturn(List.of(new Category(1L, "仕事", mockUser)));
     }
 
@@ -102,5 +103,19 @@ class TodoViewControllerTest {
                 .andExpect(redirectedUrl("/todos"));
 
         Mockito.verify(todoService, Mockito.times(1)).createTodo(any(Todo.class), any());
+    }
+
+    @TestConfiguration
+    static class TestCurrentUserConfig {
+
+        @Bean
+        CurrentUserProvider currentUserProvider() {
+            User user = new User();
+            user.setId(1L);
+            user.setUsername("testuser");
+            user.setPassword("password");
+            user.setRole("ROLE_USER");
+            return () -> user;
+        }
     }
 }

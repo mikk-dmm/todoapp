@@ -11,6 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+
 @RestController
 @RequestMapping("/api/todos")
 public class TodoApiController {
@@ -23,6 +28,16 @@ public class TodoApiController {
         this.todoMapper = todoMapper;
     }
 
+
+    // 一覧取得
+    @Operation(
+        summary = "Todo一覧取得",
+        description = "ログイン中のユーザーに紐づくTodo一覧をページング形式で取得します。ページ番号とページサイズを指定できます。"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "正常に取得しました"),
+        @ApiResponse(responseCode = "401", description = "認証エラー（ログインが必要です）")
+    })
     @GetMapping
     public ResponseEntity<Page<TodoResponse>> getTodos(
             @RequestParam(defaultValue = "0") int page,
@@ -33,14 +48,32 @@ public class TodoApiController {
         return ResponseEntity.ok(todos);
     }
 
+    // 詳細取得
+    @Operation(
+        summary = "Todo詳細取得",
+        description = "指定したIDのTodoを1件取得します。ログインユーザーに紐づくTodoのみ取得可能です。"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "202", description = "正常に取得しました"),
+        @ApiResponse(responseCode = "404", description = "指定されたIDのTodoが存在しません")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<TodoResponse> findById(@PathVariable Long id) {
+    public ResponseEntity<TodoResponse> findById(@Parameter(description = "Todoを紐付けるカテゴリID") @PathVariable Long id) {
         return todoService.findById(id)
                 .map(todoMapper::toResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // 新規作成
+    @Operation(
+        summary = "Todo新規作成",
+        description = "新しいTodoを作成します。titleは必須です。作成されたTodoはログインユーザーに紐づきます。"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Todoを作成しました"),
+        @ApiResponse(responseCode = "400", description = "リクエスト内容が不正です")
+    })
     @PostMapping
     public ResponseEntity<TodoResponse> createTodo(@Valid @RequestBody TodoRequest request) {
         Todo todo = todoMapper.toEntity(request);
@@ -48,8 +81,17 @@ public class TodoApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(todoMapper.toResponse(created));
     }
 
+    // 更新
+    @Operation(
+        summary = "Todo更新",
+        description = "指定したTodoを更新します。title、 description、カテゴリIDを含むフィールドを編集可能です。"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Todoを更新しました"),
+        @ApiResponse(responseCode = "404", description = "指定されたIDのTodoが存在しません")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<TodoResponse> update(@PathVariable Long id, @Valid @RequestBody TodoRequest request) {
+    public ResponseEntity<TodoResponse> update(@Parameter(description ="Todoを紐づけるカテゴリID") @PathVariable Long id, @Valid @RequestBody TodoRequest request) {
         return todoService.findById(id)
                 .map(existing -> {
                     todoMapper.applyRequest(existing, request);
@@ -59,6 +101,15 @@ public class TodoApiController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // 削除
+    @Operation(
+        summary = "Todo削除",
+        description = "指定したIDのTodoを削除します。ログインユーザー自身のTodoのみ削除可能です。"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "削除成功"),
+        @ApiResponse(responseCode = "404", description = "指定されたIDのTodoが存在しません")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         todoService.deleteById(id);

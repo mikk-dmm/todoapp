@@ -7,7 +7,7 @@ import com.example.todoapp.entity.User;
 import com.example.todoapp.form.TodoForm;
 import com.example.todoapp.service.TodoService;
 import com.example.todoapp.service.CategoryService;
-import com.example.todoapp.service.UserService;
+import com.example.todoapp.service.CurrentUserProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,17 +24,17 @@ public class TodoViewController {
 
     private final TodoService todoService;
     private final CategoryService categoryService;
-    private final UserService userService;
+    private final CurrentUserProvider currentUserProvider;
 
-    public TodoViewController(TodoService todoService, CategoryService categoryService, UserService userService) {
+    public TodoViewController(TodoService todoService, CategoryService categoryService, CurrentUserProvider currentUserProvider) {
         this.todoService = todoService;
         this.categoryService = categoryService;
-        this.userService = userService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     // 共通：ログイン中ユーザーのカテゴリ取得
     private List<Category> getUserCategories() {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         return categoryService.findByUserId(currentUser.getId());
     }
 

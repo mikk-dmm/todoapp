@@ -6,7 +6,6 @@ import com.example.todoapp.repository.CategoryRepository;
 import com.example.todoapp.repository.TodoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.*;
@@ -24,13 +23,10 @@ class TodoServiceTest {
     private TodoRepository todoRepository;
 
     @Mock
-    private UserService userService;
-
-    @Mock
     private CategoryRepository categoryRepository;
 
-    @InjectMocks
     private TodoService todoService;
+    private CurrentUserProvider currentUserProvider;
 
     private User testUser;
     private Todo testTodo;
@@ -43,6 +39,11 @@ class TodoServiceTest {
         testUser = new User();
         testUser.setId(1L);
         testUser.setUsername("testuser");
+        testUser.setPassword("password");
+        testUser.setRole("ROLE_USER");
+
+        currentUserProvider = () -> testUser;
+        todoService = new TodoService(todoRepository, currentUserProvider, categoryRepository);
 
         testTodo = new Todo();
         testTodo.setId(1L);
@@ -53,7 +54,6 @@ class TodoServiceTest {
 
     @Test
     void testCreateTodo_Success() {
-        when(userService.getCurrentUser()).thenReturn(testUser);
         when(todoRepository.save(any(Todo.class))).thenReturn(testTodo);
 
         Todo result = todoService.createTodo(testTodo, null);
@@ -66,7 +66,6 @@ class TodoServiceTest {
 
     @Test
     void testFindAllByCurrentUser_ReturnsPage() {
-        when(userService.getCurrentUser()).thenReturn(testUser);
         Page<Todo> mockPage = new PageImpl<>(Collections.singletonList(testTodo));
         when(todoRepository.findByUser(eq(testUser), any(Pageable.class))).thenReturn(mockPage);
 

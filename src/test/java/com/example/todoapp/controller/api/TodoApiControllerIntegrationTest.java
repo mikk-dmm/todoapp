@@ -4,11 +4,14 @@ import com.example.todoapp.entity.Todo;
 import com.example.todoapp.entity.User;
 import com.example.todoapp.repository.TodoRepository;
 import com.example.todoapp.repository.UserRepository;
+import com.example.todoapp.repository.CategoryRepository;
+import com.example.todoapp.security.TestSecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,7 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@ActiveProfiles("default")
+@ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class TodoApiControllerIntegrationTest {
 
     @Autowired
@@ -35,12 +39,16 @@ class TodoApiControllerIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     private User user;
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
         todoRepository.deleteAll();
+        categoryRepository.deleteAll();
+        userRepository.deleteAll();
 
         user = new User();
         user.setUsername("testuser");

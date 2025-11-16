@@ -3,7 +3,7 @@ package com.example.todoapp.controller.view;
 import com.example.todoapp.entity.Category;
 import com.example.todoapp.entity.User;
 import com.example.todoapp.service.CategoryService;
-import com.example.todoapp.service.UserService;
+import com.example.todoapp.service.CurrentUserProvider;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,11 +18,11 @@ import org.springframework.util.StringUtils;
 public class CategoryViewController {
 
     private final CategoryService categoryService;
-    private final UserService userService;
+    private final CurrentUserProvider currentUserProvider;
 
-    public CategoryViewController(CategoryService categoryService, UserService userService) {
+    public CategoryViewController(CategoryService categoryService, CurrentUserProvider currentUserProvider) {
         this.categoryService = categoryService;
-        this.userService = userService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     // 検索・一覧 + ページネーション
@@ -33,7 +33,7 @@ public class CategoryViewController {
             @RequestParam(defaultValue = "5") int size,
             Model model) {
 
-        User currentUser = userService.getCurrentUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         Pageable pageable = PageRequest.of(page, size);
         String sanitizedKeyword = (StringUtils.hasText(keyword) && !"null".equalsIgnoreCase(keyword.trim()))
                 ? keyword.trim()

@@ -4,7 +4,7 @@ import com.example.todoapp.entity.Category;
 import com.example.todoapp.entity.User;
 import com.example.todoapp.repository.CategoryRepository;
 import com.example.todoapp.service.CategoryService;
-import com.example.todoapp.service.UserService;
+import com.example.todoapp.service.CurrentUserProvider;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +20,11 @@ import java.util.Optional;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final UserService userService;
+    private final CurrentUserProvider currentUserProvider;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository, UserService userService) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, CurrentUserProvider currentUserProvider) {
         this.categoryRepository = categoryRepository;
-        this.userService = userService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category save(Category category) {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         category.setUser(currentUser);
         return categoryRepository.save(category);
     }
@@ -67,7 +67,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         existing.setName(category.getName());
         if (existing.getUser() == null) {
-            existing.setUser(userService.getCurrentUser());
+            existing.setUser(currentUserProvider.getCurrentUser());
         }
 
         return categoryRepository.save(existing);
@@ -77,7 +77,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public Page<Category> searchCategories(String keyword, int page, int size) {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = currentUserProvider.getCurrentUser();
         Pageable pageable = PageRequest.of(page, size);
         if (keyword == null || keyword.isEmpty()) {
             return categoryRepository.findByUserId(currentUser.getId(), pageable);

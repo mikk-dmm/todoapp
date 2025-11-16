@@ -7,9 +7,11 @@ import com.example.todoapp.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
+@Profile("!test")
 public class DataInitializer {
 
     @Bean
@@ -27,21 +29,25 @@ public class DataInitializer {
             User miyu = new User();
             miyu.setUsername("miyu");
             miyu.setPassword(passwordEncoder.encode("password"));
+            miyu.setRole("ROLE_ADMIN");
             userRepository.save(miyu);
 
             User alice = new User();
             alice.setUsername("alice");
             alice.setPassword(passwordEncoder.encode("password"));
+            alice.setRole("ROLE_USER");
             userRepository.save(alice);
 
             User bob = new User();
             bob.setUsername("bob");
             bob.setPassword(passwordEncoder.encode("password"));
+            bob.setRole("ROLE_USER");
             userRepository.save(bob);
 
             User charlie = new User();
             charlie.setUsername("charlie");
             charlie.setPassword(passwordEncoder.encode("password"));
+            charlie.setRole("ROLE_USER");
             userRepository.save(charlie);
 
             // --- 各ユーザーに10件ずつTodo作成 ---
