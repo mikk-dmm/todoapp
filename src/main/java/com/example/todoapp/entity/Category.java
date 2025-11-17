@@ -1,12 +1,14 @@
 package com.example.todoapp.entity;
 
 import jakarta.persistence.*;
-
-import java.lang.annotation.Inherited;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "categories")
+@Getter
+@Setter
 public class Category {
 
     @Id
@@ -31,18 +33,5 @@ public class Category {
         this.name = name;
         this.user = user;
     }
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public List<Todo> getTodos() { return todos; }
-    public void setTodos(List<Todo> todos) { this.todos = todos; }
-
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
 
 }

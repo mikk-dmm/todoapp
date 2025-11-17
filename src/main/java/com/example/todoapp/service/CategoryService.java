@@ -2,18 +2,27 @@ package com.example.todoapp.service;
 
 import com.example.todoapp.entity.Category;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CategoryService {
-    List<Category> findAll();
-    Optional<Category> findById(Long id);
+
+    // ログインユーザーの一覧取得
+    List<Category> findAllForCurrentUser();
+
+    // ログインユーザーのID取得
+    Optional<Category> findByIdForCurrentUser(Long id);
+
+    // 新規登録
     Category save(Category category);
-    void delete(Long id);
-    List<Category> findByUserId(Long userId);
+
+    // ログインユーザーのみ自分のカテゴリ更新
     Category update(Long id, Category category);
-    Page<Category> searchCategories(String keyword, int page, int size);
-    Page<Category> searchCategoriesWithPagination(Long userId, String keyword, Pageable pagable);
+
+    // ログインユーザーのみ自分のカテゴリ削除
+    void delete(Long id);
+
+    // カテゴリ検索
+    Page<Category> search(String keyword, int page, int size);
 }

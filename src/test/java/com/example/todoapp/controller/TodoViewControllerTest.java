@@ -53,7 +53,7 @@ class TodoViewControllerTest {
     @BeforeEach
     void setup() {
         mockUser = currentUserProvider.getCurrentUser();
-        Mockito.when(categoryService.findByUserId(1L)).thenReturn(List.of(new Category(1L, "仕事", mockUser)));
+        Mockito.when(categoryService.findAllForCurrentUser()).thenReturn(List.of(new Category(1L, "仕事", mockUser)));
     }
 
     @Test
@@ -85,7 +85,7 @@ class TodoViewControllerTest {
         todo.setId(1L);
         todo.setTitle("詳細テスト");
 
-        Mockito.when(todoService.findById(1L)).thenReturn(Optional.of(todo));
+        Mockito.when(todoService.findByIdForCurrentUser(1L)).thenReturn(Optional.of(todo));
 
         mockMvc.perform(get("/todos/1").with(user("testuser")))
                 .andExpect(status().isOk())

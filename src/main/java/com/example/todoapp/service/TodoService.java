@@ -1,5 +1,6 @@
 package com.example.todoapp.service;
 
+import com.example.todoapp.entity.Category;
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.entity.User;
 import com.example.todoapp.entity.Status;
@@ -28,28 +29,42 @@ public class TodoService {
         this.categoryRepository = categoryRepository;
     }
 
+    private User getCurrentUser() {
+        return currentUserProvider.getCurrentUser();
+    }
+
+    private Long getCurrentUserId() {
+        return getCurrentUser().getId();
+    }
+
+    private Todo loadOwnedTodo(Long id) {
+        return todoRepository.findByIdAndUserId(id, getCurrentUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Todo not found for current user: " + id));
+    }
+
     // Todo作成
     public Todo createTodo(Todo todo, Long categoryId) {
-        User currentUser = currentUserProvider.getCurrentUser();
+        User currentUser = getCurrentUser();
         todo.setUser(currentUser);
         applyDefaultStatus(todo);
-        if (categoryId != null) {
-            categoryRepository.findById(categoryId).ifPresent(todo::setCategory);
-        }
+        validateAndAssignCategory(todo, categoryId, currentUser);
         return todoRepository.save(todo);
     }
 
     // Todo更新
     public Todo updateTodo(Todo todo, Long categoryId) {
-        User currentUser = currentUserProvider.getCurrentUser();
-        todo.setUser(currentUser);
-        applyDefaultStatus(todo);
-        if (categoryId != null) {
-            categoryRepository.findById(categoryId).ifPresent(todo::setCategory);
-        } else {
-            todo.setCategory(null);
+        if (todo.getId() == null) {
+            throw new IllegalArgumentException("Todo ID is required for update");
         }
-        return todoRepository.save(todo);
+        Todo existing = loadOwnedTodo(todo.getId());
+        existing.setTitle(todo.getTitle());
+        existing.setDescription(todo.getDescription());
+        existing.setDueDate(todo.getDueDate());
+        existing.setStatus(todo.getStatus());
+        existing.setCompleted(todo.isCompleted());
+        applyDefaultStatus(existing);
+        validateAndAssignCategory(existing, categoryId, getCurrentUser());
+        return todoRepository.save(existing);
     }
 
     //ページネーション対応一覧
@@ -74,8 +89,13 @@ public class TodoService {
         return todoRepository.findById(id);
     }
 
+    public Optional<Todo> findByIdForCurrentUser(Long id) {
+        return todoRepository.findByIdAndUserId(id, getCurrentUserId());
+    }
+
     public void deleteById(Long id) {
-        todoRepository.deleteById(id);
+        Todo todo = loadOwnedTodo(id);
+        todoRepository.delete(todo);
     }
 
     public Page<Todo> searchTodosWithPagination(String keyword, Pageable pageable) {
@@ -125,8 +145,7 @@ public class TodoService {
     }
 
     public void toggleCompleted(Long id) {
-        Todo todo = todoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Todoが存在しません: " + id));
+        Todo todo = loadOwnedTodo(id);
         todo.setCompleted(!todo.isCompleted());
         todoRepository.save(todo);
     }
@@ -135,5 +154,15 @@ public class TodoService {
         if (todo.getStatus() == null) {
             todo.setStatus(Status.TODO);
         }
+    }
+
+    private void validateAndAssignCategory(Todo todo, Long categoryId, User currentUser) {
+        if (categoryId == null) {
+            todo.setCategory(null);
+            return;
+        }
+        Category category = categoryRepository.findByIdAndUserId(categoryId, currentUser.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found or does not belong to current user: " + categoryId));
+        todo.setCategory(category);
     }
 }

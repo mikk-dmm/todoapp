@@ -2,6 +2,7 @@ package com.example.todoapp.controller.api;
 
 import com.example.todoapp.entity.Category;
 import com.example.todoapp.service.CategoryService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -24,14 +25,14 @@ public class CategoryApiController {
     // 一覧取得
     @Operation(
         summary = "カテゴリ一覧取得",
-        description = "全カテゴリを取得します。ユーザー共通のカテゴリとして扱われます。"
+        description = "ログインユーザーが登録したカテゴリのみ取得します。"
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "正常に取得しました")
     })
     @GetMapping
     public List<Category> findAll() {
-        return categoryService.findAll();
+        return categoryService.findAllForCurrentUser();
     }
 
     // ID指定取得
@@ -45,7 +46,7 @@ public class CategoryApiController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<Category> findById(@PathVariable Long id) {
-        return categoryService.findById(id)
+        return categoryService.findByIdForCurrentUser(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -77,7 +78,7 @@ public class CategoryApiController {
         try {
             Category updated = categoryService.update(id, category);
             return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -92,7 +93,11 @@ public class CategoryApiController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        categoryService.delete(id);
-        return ResponseEntity.noContent().build();
+        try {
+            categoryService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

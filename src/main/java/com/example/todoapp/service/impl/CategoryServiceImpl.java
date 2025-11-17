@@ -6,11 +6,12 @@ import com.example.todoapp.repository.CategoryRepository;
 import com.example.todoapp.service.CategoryService;
 import com.example.todoapp.service.CurrentUserProvider;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,73 +28,68 @@ public class CategoryServiceImpl implements CategoryService {
         this.currentUserProvider = currentUserProvider;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
+    // 現在ログイン中のユーザーを取得（共通ヘルパー）
+    private User getCurrentUser() {
+        return currentUserProvider.getCurrentUser();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Category> findById(Long id) {
-        return categoryRepository.findById(id);
+    private Long getCurrentUserId() {
+        return getCurrentUser().getId();
     }
 
+    // 指定IDのカテゴリが currentUser 所有であることを検証し取得する
+    private Category loadOwnedCategory(Long id) {
+        return categoryRepository.findByIdAndUserId(id, getCurrentUserId())
+                .orElseThrow(() -> new EntityNotFoundException("Category not found for current user: " + id));
+    }
+
+    // ログイン中ユーザーのカテゴリ一覧を取得
+    @Override
+    @Transactional(readOnly = true)
+    public List<Category> findAllForCurrentUser() {
+        return categoryRepository.findByUserId(getCurrentUserId());
+    }
+
+    // ID とユーザーを基準にカテゴリを取得（所有者チェック付き）
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Category> findByIdForCurrentUser(Long id) {
+        return categoryRepository.findByIdAndUserId(id, getCurrentUserId());
+    }
+
+    // 新規カテゴリを currentUser に紐づけて保存
     @Override
     public Category save(Category category) {
-        User currentUser = currentUserProvider.getCurrentUser();
-        category.setUser(currentUser);
+        category.setUser(getCurrentUser());
         return categoryRepository.save(category);
     }
 
+    // 所有者チェック後、カテゴリ名を更新
     @Override
     public void delete(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new EntityNotFoundException("Category not found: " + id);
-        }
-        categoryRepository.deleteById(id);
+        Category category = loadOwnedCategory(id);
+        categoryRepository.delete(category);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<Category> findByUserId(Long userId) {
-        return categoryRepository.findByUserId(userId);
-    }
-
+    // 所有者チェック後、カテゴリを削除
     @Override
     public Category update(Long id, Category category) {
-        Category existing = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
-
+        Category existing = loadOwnedCategory(id);
         existing.setName(category.getName());
-        if (existing.getUser() == null) {
-            existing.setUser(currentUserProvider.getCurrentUser());
-        }
-
         return categoryRepository.save(existing);
     }
 
-    //ページネーション付き検索
+    // ユーザー別カテゴリの検索＋ページネーション
     @Override
     @Transactional(readOnly = true)
-    public Page<Category> searchCategories(String keyword, int page, int size) {
-        User currentUser = currentUserProvider.getCurrentUser();
+    public Page<Category> search(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        if (keyword == null || keyword.isEmpty()) {
-            return categoryRepository.findByUserId(currentUser.getId(), pageable);
-        } else {
-            return categoryRepository.findByUserIdAndNameContainingIgnoreCase(currentUser.getId(), keyword, pageable);
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Category> searchCategoriesWithPagination(Long userId, String keyword, Pageable pageable) {
-        if (keyword == null || keyword.isEmpty()) {
+        Long userId = getCurrentUserId();
+        if (!StringUtils.hasText(keyword) || "null".equalsIgnoreCase(keyword.trim())) {
             return categoryRepository.findByUserId(userId, pageable);
-        } else {
-            return categoryRepository.findByUserIdAndNameContainingIgnoreCase(userId, keyword, pageable);
         }
+        String sanitizedKeyword = keyword.trim();
+        return categoryRepository.findByUserIdAndNameContainingIgnoreCase(userId, sanitizedKeyword, pageable);
     }
 
 }

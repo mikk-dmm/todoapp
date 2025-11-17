@@ -3,11 +3,9 @@ package com.example.todoapp.controller.view;
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.entity.Category;
 import com.example.todoapp.entity.Status;
-import com.example.todoapp.entity.User;
 import com.example.todoapp.form.TodoForm;
 import com.example.todoapp.service.TodoService;
 import com.example.todoapp.service.CategoryService;
-import com.example.todoapp.service.CurrentUserProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,18 +22,15 @@ public class TodoViewController {
 
     private final TodoService todoService;
     private final CategoryService categoryService;
-    private final CurrentUserProvider currentUserProvider;
 
-    public TodoViewController(TodoService todoService, CategoryService categoryService, CurrentUserProvider currentUserProvider) {
+    public TodoViewController(TodoService todoService, CategoryService categoryService) {
         this.todoService = todoService;
         this.categoryService = categoryService;
-        this.currentUserProvider = currentUserProvider;
     }
 
     // 共通：ログイン中ユーザーのカテゴリ取得
     private List<Category> getUserCategories() {
-        User currentUser = currentUserProvider.getCurrentUser();
-        return categoryService.findByUserId(currentUser.getId());
+        return categoryService.findAllForCurrentUser();
     }
 
     // 一覧 + 検索 + ページネーション
@@ -88,7 +83,7 @@ public class TodoViewController {
     // 編集フォーム
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Todo todo = todoService.findById(id)
+        Todo todo = todoService.findByIdForCurrentUser(id)
                 .orElseThrow(() -> new IllegalArgumentException("指定されたIDのTodoが存在しません: " + id));
         TodoForm todoForm = new TodoForm();
         todoForm.setId(todo.getId());
@@ -106,7 +101,7 @@ public class TodoViewController {
     // 詳細表示
     @GetMapping("/{id}")
     public String showDetail(@PathVariable Long id, Model model) {
-        Todo todo = todoService.findById(id)
+        Todo todo = todoService.findByIdForCurrentUser(id)
                 .orElseThrow(() -> new IllegalArgumentException("指定されたIDのTodoが存在しません: " + id));
         model.addAttribute("todo", todo);
         model.addAttribute("title", "Todo詳細");

@@ -1,5 +1,6 @@
 package com.example.todoapp.service;
 
+import com.example.todoapp.entity.Category;
 import com.example.todoapp.entity.Todo;
 import com.example.todoapp.entity.User;
 import com.example.todoapp.repository.CategoryRepository;
@@ -77,8 +78,34 @@ class TodoServiceTest {
     }
 
     @Test
+    void testUpdateTodoWithOwnedCategory() {
+        Category category = new Category();
+        category.setId(99L);
+        category.setName("仕事");
+        category.setUser(testUser);
+
+        when(todoRepository.findByIdAndUserId(1L, testUser.getId())).thenReturn(Optional.of(testTodo));
+        when(categoryRepository.findByIdAndUserId(99L, testUser.getId())).thenReturn(Optional.of(category));
+        when(todoRepository.save(any(Todo.class))).thenReturn(testTodo);
+
+        Todo updated = todoService.updateTodo(testTodo, 99L);
+
+        assertThat(updated.getCategory()).isEqualTo(category);
+        verify(todoRepository).save(testTodo);
+    }
+
+    @Test
+    void testUpdateTodoWithOtherUserCategoryThrowsException() {
+        when(todoRepository.findByIdAndUserId(1L, testUser.getId())).thenReturn(Optional.of(testTodo));
+        when(categoryRepository.findByIdAndUserId(99L, testUser.getId())).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> todoService.updateTodo(testTodo, 99L));
+        verify(todoRepository, never()).save(any());
+    }
+
+    @Test
     void testToggleCompleted_TogglesAndSaves() {
-        when(todoRepository.findById(1L)).thenReturn(Optional.of(testTodo));
+        when(todoRepository.findByIdAndUserId(1L, testUser.getId())).thenReturn(Optional.of(testTodo));
         testTodo.setCompleted(false);
 
         todoService.toggleCompleted(1L);
@@ -89,7 +116,7 @@ class TodoServiceTest {
 
     @Test
     void testToggleCompleted_ThrowsExceptionIfNotFound() {
-        when(todoRepository.findById(999L)).thenReturn(Optional.empty());
+        when(todoRepository.findByIdAndUserId(999L, testUser.getId())).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> todoService.toggleCompleted(999L));
     }

@@ -59,7 +59,7 @@ class TodoApiControllerTest {
         todo.setId(1L);
         todo.setTitle("詳細");
 
-        Mockito.when(todoService.findById(1L)).thenReturn(Optional.of(todo));
+        Mockito.when(todoService.findByIdForCurrentUser(1L)).thenReturn(Optional.of(todo));
 
         mockMvc.perform(get("/api/todos/1").with(user("testuser")))
                 .andExpect(status().isOk())
@@ -68,7 +68,7 @@ class TodoApiControllerTest {
 
     @Test
     void testFindById_NotFound() throws Exception {
-        Mockito.when(todoService.findById(999L)).thenReturn(Optional.empty());
+        Mockito.when(todoService.findByIdForCurrentUser(999L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/todos/999").with(user("testuser")))
                 .andExpect(status().isNotFound());
@@ -115,7 +115,7 @@ class TodoApiControllerTest {
         updated.setId(1L);
         updated.setTitle("更新後");
 
-        Mockito.when(todoService.findById(1L)).thenReturn(Optional.of(existing));
+        Mockito.when(todoService.findByIdForCurrentUser(1L)).thenReturn(Optional.of(existing));
         Mockito.when(todoService.updateTodo(any(Todo.class), any())).thenReturn(updated);
 
         mockMvc.perform(put("/api/todos/1")

@@ -43,10 +43,10 @@ class WeatherServiceTest {
                 .toUriString();
         String payload = """
                 {
-                  "name": "東京",
-                  "weather": [{"description": "晴れ", "icon": "01d"}],
-                  "main": {"temp": 22.5, "humidity": 61},
-                  "wind": {"speed": 3.4}
+                    "name": "東京",
+                    "weather": [{"description": "晴れ", "icon": "01d"}],
+                    "main": {"temp": 22.5, "humidity": 61},
+                    "wind": {"speed": 3.4}
                 }
                 """;
 

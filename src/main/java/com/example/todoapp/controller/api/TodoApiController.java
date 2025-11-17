@@ -59,7 +59,7 @@ public class TodoApiController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<TodoResponse> findById(@Parameter(description = "Todoを紐付けるカテゴリID") @PathVariable Long id) {
-        return todoService.findById(id)
+        return todoService.findByIdForCurrentUser(id)
                 .map(todoMapper::toResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -76,9 +76,13 @@ public class TodoApiController {
     })
     @PostMapping
     public ResponseEntity<TodoResponse> createTodo(@Valid @RequestBody TodoRequest request) {
-        Todo todo = todoMapper.toEntity(request);
-        Todo created = todoService.createTodo(todo, request.getCategoryId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(todoMapper.toResponse(created));
+        try {
+            Todo todo = todoMapper.toEntity(request);
+            Todo created = todoService.createTodo(todo, request.getCategoryId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(todoMapper.toResponse(created));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     // 更新
@@ -92,13 +96,17 @@ public class TodoApiController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<TodoResponse> update(@Parameter(description ="Todoを紐づけるカテゴリID") @PathVariable Long id, @Valid @RequestBody TodoRequest request) {
-        return todoService.findById(id)
-                .map(existing -> {
-                    todoMapper.applyRequest(existing, request);
-                    Todo updated = todoService.updateTodo(existing, request.getCategoryId());
-                    return ResponseEntity.ok(todoMapper.toResponse(updated));
-                })
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return todoService.findByIdForCurrentUser(id)
+                    .map(existing -> {
+                        todoMapper.applyRequest(existing, request);
+                        Todo updated = todoService.updateTodo(existing, request.getCategoryId());
+                        return ResponseEntity.ok(todoMapper.toResponse(updated));
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     // 削除
@@ -112,7 +120,11 @@ public class TodoApiController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        todoService.deleteById(id);
-        return ResponseEntity.noContent().build();
+        try {
+            todoService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
