@@ -5,7 +5,7 @@
 本アプリは Spring Boot / Spring Security / Spring Data JPA を中心に構築し、
 設計〜実装まで一貫して自分で進めました。
 実装方法に悩んだ部分やベストプラクティスの確認には
-ChatGPT や GitHub Copilot を 補助ツール として活用しつつ、
+ChatGPT や Codex を 補助ツール として活用しつつ、
 コードの理解・リファクタリングは必ず自分で行っています。
 
 現時点でも、Java文法・テスト戦略・Spring Security・外部API連携など
