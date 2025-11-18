@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Outgoing representation of Todo entities for REST clients.
+ * クライアントへのフォーム出力専用DTOクラス
  */
 public class TodoResponse {
 

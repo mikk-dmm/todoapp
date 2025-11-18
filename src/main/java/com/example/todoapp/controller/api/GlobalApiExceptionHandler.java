@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Provides consistent error payloads for REST endpoints.
- */
+/*REST APIからのエラー専用共通ハンドラー*/
 @RestControllerAdvice(basePackages = "com.example.todoapp.controller.api")
 public class GlobalApiExceptionHandler {
 

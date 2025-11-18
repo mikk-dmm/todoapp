@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 /**
- * Incoming payload for creating/updating Todos via REST.
+ * クライアントからの新規作成・更新を受け取るDTOクラス
  */
 public class TodoRequest {
 
