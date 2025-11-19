@@ -6,7 +6,7 @@ import com.example.todoapp.entity.User;
 import org.springframework.stereotype.Component;
 
 /**
- * Converts between Todo entities and DTOs.
+ *エンティティとDTO間の変換クラス
  */
 @Component
 public class TodoMapper {
