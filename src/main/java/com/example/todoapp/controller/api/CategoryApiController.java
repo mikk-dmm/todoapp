@@ -57,7 +57,7 @@ public class CategoryApiController {
         description = "新しいカテゴリを作成します。"
     )
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "作成しました")
+        @ApiResponse(responseCode = "201", description = "作成しました")
     })
     @PostMapping
     public Category create(@RequestBody Category category) {

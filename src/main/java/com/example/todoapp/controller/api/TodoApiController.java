@@ -123,7 +123,7 @@ public class TodoApiController {
         try {
             todoService.deleteById(id);
             return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
     }

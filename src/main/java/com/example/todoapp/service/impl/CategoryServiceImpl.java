@@ -64,14 +64,14 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.save(category);
     }
 
-    // 所有者チェック後、カテゴリ名を更新
+    // 所有者チェック後、カテゴリ名を削除
     @Override
     public void delete(Long id) {
         Category category = loadOwnedCategory(id);
         categoryRepository.delete(category);
     }
 
-    // 所有者チェック後、カテゴリを削除
+    // 所有者チェック後、カテゴリを更新
     @Override
     public Category update(Long id, Category category) {
         Category existing = loadOwnedCategory(id);

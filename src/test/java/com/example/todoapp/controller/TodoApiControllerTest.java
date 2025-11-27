@@ -1,4 +1,4 @@
-package com.example.todoapp.controller.api;
+package com.example.todoapp.controller;
 
 import com.example.todoapp.dto.todo.TodoMapper;
 import com.example.todoapp.entity.Todo;

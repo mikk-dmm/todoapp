@@ -29,17 +29,20 @@ public class TodoService {
         this.categoryRepository = categoryRepository;
     }
 
+    //認証ユーザー取得
     private User getCurrentUser() {
         return currentUserProvider.getCurrentUser();
     }
 
+    //認証ユーザーID取得
     private Long getCurrentUserId() {
         return getCurrentUser().getId();
     }
 
+    //所有者チェック+例外専用（更新、削除）
     private Todo loadOwnedTodo(Long id) {
         return todoRepository.findByIdAndUserId(id, getCurrentUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Todo not found for current user: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Todoはありません: " + id));
     }
 
     // Todo作成
@@ -54,7 +57,7 @@ public class TodoService {
     // Todo更新
     public Todo updateTodo(Todo todo, Long categoryId) {
         if (todo.getId() == null) {
-            throw new IllegalArgumentException("Todo ID is required for update");
+            throw new IllegalArgumentException("更新にはTodoidが必要です");
         }
         Todo existing = loadOwnedTodo(todo.getId());
         existing.setTitle(todo.getTitle());
@@ -85,10 +88,12 @@ public class TodoService {
         }
     }
 
+    //管理者用
     public Optional<Todo> findById(Long id) {
         return todoRepository.findById(id);
     }
 
+    //所有者チェック（詳細、編集）
     public Optional<Todo> findByIdForCurrentUser(Long id) {
         return todoRepository.findByIdAndUserId(id, getCurrentUserId());
     }
@@ -98,15 +103,7 @@ public class TodoService {
         todoRepository.delete(todo);
     }
 
-    public Page<Todo> searchTodosWithPagination(String keyword, Pageable pageable) {
-        User currentUser = currentUserProvider.getCurrentUser();
-        if (keyword == null || keyword.isEmpty()) {
-            return todoRepository.findByUser(currentUser, pageable);
-        } else {
-            return todoRepository.findByUserAndTitleContainingIgnoreCase(currentUser, keyword, pageable);
-        }
-    }
-
+    //ソート機能対応検索
     public Page<Todo> searchTodosWithSort(String keyword, String sort, Pageable pageable) {
         User currentUser = currentUserProvider.getCurrentUser();
 
